@@ -285,7 +285,7 @@ details.acc[open]>summary{border-bottom:1px solid var(--line)}
 .exitzone .quit{margin:0 0 18px}
 details.acc{scroll-margin-top:12px}
 
-/* v2.1 */
+/* v2.2 */
 #qtop{gap:10px}
 #qtop .rk{margin:0}
 #cal-box{min-height:0;margin-top:10px}
@@ -540,6 +540,7 @@ html.gated body{overflow:hidden}
     <div class="field" style="margin-bottom:12px"><div class="seg" role="radiogroup" aria-label="Vue du bilan">
       <label><input type="radio" name="bview" value="wk" checked><span>Semaine</span></label>
       <label><input type="radio" name="bview" value="ana"><span>Analyses</span></label>
+      <label><input type="radio" name="bview" value="coach"><span>Coach</span></label>
     </div></div>
     <div id="b-week">
     <div class="weeknav">
@@ -575,6 +576,19 @@ html.gated body{overflow:hidden}
       </div>
     </div>
   </div>
+    <div id="b-coach" hidden>
+      <div class="block">
+        <h2>Coach</h2>
+        <p class="hint" id="co-intro"></p>
+        <div class="row-actions" id="co-chips" style="flex-wrap:wrap"></div>
+        <div id="co-msgs" style="margin:12px 0"></div>
+        <p class="hint" id="co-wait" hidden></p>
+        <textarea id="co-text" rows="2" style="width:100%" maxlength="600"></textarea>
+        <label class="chk" style="margin-top:8px"><input type="checkbox" id="co-notes"><span id="co-notes-l"></span></label>
+        <div class="row-actions"><button class="btn primary" id="co-send" type="button"></button><button class="btn" id="co-new" type="button"></button></div>
+        <p class="hint" id="co-cnt"></p>
+      </div>
+    </div>
     <div id="b-ana" hidden>
       <div class="field" style="margin-bottom:12px"><span>Période</span><div class="seg" role="radiogroup" aria-label="Période">
         <label><input type="radio" name="aper" value="all" checked><span>Tout</span></label>
@@ -902,7 +916,7 @@ function tnSheet(t){
   return h;
 }
 
-/* ---------- v2.1 : TradingView, mode rapide, calendrier ---------- */
+/* ---------- v2.2 : TradingView, mode rapide, calendrier ---------- */
 var TVMAP={GOLD:'OANDA:XAUUSD',XAGUSD:'OANDA:XAGUSD',XPTUSD:'OANDA:XPTUSD',XPDUSD:'OANDA:XPDUSD',USOIL:'TVC:USOIL',UKOIL:'TVC:UKOIL',NGAS:'NYMEX:NG1!',US30:'TVC:DJI',NAS100:'NASDAQ:NDX',US500:'SP:SPX',US2000:'TVC:RUT',GER40:'TVC:DAX',UK100:'TVC:UKX',FRA40:'TVC:CAC40',EU50:'TVC:SX5E',JP225:'TVC:NI225'};
 function tvSym(p){
   if(TVMAP[p])return TVMAP[p];
@@ -1221,7 +1235,7 @@ function renderAna(){
   h+='<p class="hint">Les lignes grisées ont moins de 5 trades : trop peu pour conclure.</p>';
   out.innerHTML=h;
 }
-function applyBview(){var v=getRadio('bview')||'wk';$('#b-week').hidden=v!=='wk';$('#b-ana').hidden=v!=='ana';if(v==='ana')renderAna();trSoon()}
+function applyBview(){var v=getRadio('bview')||'wk';$('#b-week').hidden=v!=='wk';$('#b-ana').hidden=v!=='ana';$('#b-coach').hidden=v!=='coach';if(v==='ana')renderAna();if(v==='coach')coInit();trSoon()}
 document.addEventListener('change',function(e){var n=e.target&&e.target.name;if(n==='bview'||n==='aper')applyBview()});
 
 var rkLots=null;
@@ -1740,6 +1754,121 @@ function fillLangSelect(sel){
   if(!sel.options.length)sel.innerHTML=LANGS.map(function(x){return '<option value="'+x[0]+'">'+x[1]+'</option>'}).join('');
   sel.value=S.lang;
 }
+
+/* ---------- v2.2: Coach ---------- */
+var CT={
+fr:{intro:"Ton coach lit tous tes trades et t'explique simplement quoi améliorer. Il ne prédit pas le marché.",ph:"Pose ta question…",send:"Envoyer",nw:"Nouvelle conversation",notes:"Inclure mes notes écrites",wait:"Le Coach réfléchit…",left:"questions restantes aujourd'hui : ",
+ chips:[["Est-ce que je fais moins d'erreurs ?","Compare mes 7 derniers jours aux 7 jours d'avant : est-ce que je fais moins ou plus d'erreurs ?"],["Bilan complet","Fais-moi un bilan complet de mes trades : points forts, points faibles, et ce qu'il faut améliorer."],["Que corriger en premier ?","Quelle est la toute première chose que je dois corriger, d'après mes trades ?"],["Mes meilleurs moments","Dans quelles paires, sessions et jours je trade le mieux et le moins bien ?"]],
+ e:{need:"Connecte-toi en mode en ligne pour utiliser le Coach.",none:"Ajoute d'abord quelques trades dans le journal.",limit:"Tu as atteint la limite du jour. Reviens demain.",no_key:"La clé du Coach n'est pas installée dans Vercel (GEMINI_API_KEY).",quota:"Le Coach gratuit est saturé pour le moment. Réessaie dans quelques minutes.",model:"Le modèle n'existe plus. Dans Vercel, change GEMINI_MODEL (ex. gemini-2.5-flash-lite).",key:"La clé du Coach est refusée. Vérifie GEMINI_API_KEY dans Vercel.",empty:"Réponse vide. Réessaie.",upstream:"Le service du Coach ne répond pas. Réessaie.",auth:"Session expirée. Reconnecte-toi.",daily:"Limite du jour atteinte. Reviens demain.",net:"Pas de connexion. Réessaie."}},
+en:{intro:"Your coach reads all your trades and explains simply what to improve. It does not predict the market.",ph:"Ask your question…",send:"Send",nw:"New chat",notes:"Include my written notes",wait:"Coach is thinking…",left:"questions left today: ",
+ chips:[["Am I making fewer mistakes?","Compare my last 7 days with the 7 days before: am I making fewer or more mistakes?"],["Full review","Give me a full review of my trades: strengths, weaknesses and what to improve."],["What to fix first?","What is the very first thing I should fix, based on my trades?"],["My best moments","In which pairs, sessions and days do I trade best and worst?"]],
+ e:{need:"Sign in online to use the Coach.",none:"Add a few trades to the journal first.",limit:"Daily limit reached. Come back tomorrow.",no_key:"The Coach key is not installed in Vercel (GEMINI_API_KEY).",quota:"The free Coach is busy right now. Try again in a few minutes.",model:"The model no longer exists. In Vercel, change GEMINI_MODEL (e.g. gemini-2.5-flash-lite).",key:"The Coach key was refused. Check GEMINI_API_KEY in Vercel.",empty:"Empty answer. Try again.",upstream:"The Coach service is not answering. Try again.",auth:"Session expired. Sign in again.",daily:"Daily limit reached. Come back tomorrow.",net:"No connection. Try again."}},
+es:{intro:"Tu coach lee todas tus operaciones y te explica con sencillez qué mejorar. No predice el mercado.",ph:"Haz tu pregunta…",send:"Enviar",nw:"Nueva conversación",notes:"Incluir mis notas escritas",wait:"El Coach está pensando…",left:"preguntas restantes hoy: ",
+ chips:[["¿Cometo menos errores?","Compara mis últimos 7 días con los 7 anteriores: ¿cometo menos o más errores?"],["Balance completo","Hazme un balance completo de mis operaciones: puntos fuertes, débiles y qué mejorar."],["¿Qué corregir primero?","¿Qué es lo primero que debo corregir según mis operaciones?"],["Mis mejores momentos","¿En qué pares, sesiones y días opero mejor y peor?"]],
+ e:{need:"Inicia sesión en línea para usar el Coach.",none:"Añade primero algunas operaciones al diario.",limit:"Límite diario alcanzado. Vuelve mañana.",no_key:"La clave del Coach no está instalada en Vercel (GEMINI_API_KEY).",quota:"El Coach gratuito está saturado. Inténtalo en unos minutos.",model:"El modelo ya no existe. En Vercel cambia GEMINI_MODEL (p. ej. gemini-2.5-flash-lite).",key:"Se rechazó la clave del Coach. Revisa GEMINI_API_KEY en Vercel.",empty:"Respuesta vacía. Inténtalo de nuevo.",upstream:"El servicio del Coach no responde. Inténtalo de nuevo.",auth:"Sesión caducada. Vuelve a iniciar sesión.",daily:"Límite diario alcanzado. Vuelve mañana.",net:"Sin conexión. Inténtalo de nuevo."}},
+pt:{intro:"O teu coach lê todos os teus trades e explica de forma simples o que melhorar. Não prevê o mercado.",ph:"Faz a tua pergunta…",send:"Enviar",nw:"Nova conversa",notes:"Incluir as minhas notas escritas",wait:"O Coach está a pensar…",left:"perguntas restantes hoje: ",
+ chips:[["Estou a errar menos?","Compara os meus últimos 7 dias com os 7 anteriores: estou a errar menos ou mais?"],["Balanço completo","Faz-me um balanço completo dos meus trades: pontos fortes, fracos e o que melhorar."],["O que corrigir primeiro?","Qual é a primeira coisa que devo corrigir, segundo os meus trades?"],["Os meus melhores momentos","Em que pares, sessões e dias opero melhor e pior?"]],
+ e:{need:"Inicia sessão online para usar o Coach.",none:"Adiciona primeiro alguns trades ao diário.",limit:"Limite diário atingido. Volta amanhã.",no_key:"A chave do Coach não está instalada no Vercel (GEMINI_API_KEY).",quota:"O Coach gratuito está ocupado. Tenta daqui a uns minutos.",model:"O modelo já não existe. No Vercel muda GEMINI_MODEL (ex. gemini-2.5-flash-lite).",key:"A chave do Coach foi recusada. Verifica GEMINI_API_KEY no Vercel.",empty:"Resposta vazia. Tenta de novo.",upstream:"O serviço do Coach não responde. Tenta de novo.",auth:"Sessão expirada. Inicia sessão de novo.",daily:"Limite diário atingido. Volta amanhã.",net:"Sem ligação. Tenta de novo."}},
+de:{intro:"Dein Coach liest alle deine Trades und erklärt einfach, was du verbessern kannst. Er sagt den Markt nicht voraus.",ph:"Stelle deine Frage…",send:"Senden",nw:"Neuer Chat",notes:"Meine Notizen einbeziehen",wait:"Der Coach denkt nach…",left:"Fragen heute übrig: ",
+ chips:[["Mache ich weniger Fehler?","Vergleiche meine letzten 7 Tage mit den 7 Tagen davor: Mache ich weniger oder mehr Fehler?"],["Komplette Auswertung","Gib mir eine komplette Auswertung meiner Trades: Stärken, Schwächen und was zu verbessern ist."],["Was zuerst ändern?","Was soll ich laut meinen Trades als Allererstes korrigieren?"],["Meine besten Zeiten","In welchen Paaren, Sessions und Tagen handle ich am besten und am schlechtesten?"]],
+ e:{need:"Melde dich online an, um den Coach zu nutzen.",none:"Füge zuerst ein paar Trades ins Journal ein.",limit:"Tageslimit erreicht. Komm morgen wieder.",no_key:"Der Coach-Schlüssel ist nicht in Vercel installiert (GEMINI_API_KEY).",quota:"Der kostenlose Coach ist ausgelastet. Versuche es in ein paar Minuten.",model:"Das Modell gibt es nicht mehr. Ändere in Vercel GEMINI_MODEL (z. B. gemini-2.5-flash-lite).",key:"Der Coach-Schlüssel wurde abgelehnt. Prüfe GEMINI_API_KEY in Vercel.",empty:"Leere Antwort. Versuche es erneut.",upstream:"Der Coach-Dienst antwortet nicht. Versuche es erneut.",auth:"Sitzung abgelaufen. Melde dich neu an.",daily:"Tageslimit erreicht. Komm morgen wieder.",net:"Keine Verbindung. Versuche es erneut."}},
+it:{intro:"Il tuo coach legge tutti i tuoi trade e spiega in modo semplice cosa migliorare. Non prevede il mercato.",ph:"Fai la tua domanda…",send:"Invia",nw:"Nuova conversazione",notes:"Includi le mie note scritte",wait:"Il Coach sta pensando…",left:"domande rimaste oggi: ",
+ chips:[["Faccio meno errori?","Confronta i miei ultimi 7 giorni con i 7 precedenti: faccio meno o più errori?"],["Bilancio completo","Fammi un bilancio completo dei miei trade: punti forti, deboli e cosa migliorare."],["Cosa correggere prima?","Qual è la prima cosa da correggere, in base ai miei trade?"],["I miei momenti migliori","In quali coppie, sessioni e giorni opero meglio e peggio?"]],
+ e:{need:"Accedi online per usare il Coach.",none:"Aggiungi prima qualche trade al diario.",limit:"Limite giornaliero raggiunto. Torna domani.",no_key:"La chiave del Coach non è installata su Vercel (GEMINI_API_KEY).",quota:"Il Coach gratuito è occupato. Riprova tra qualche minuto.",model:"Il modello non esiste più. Su Vercel cambia GEMINI_MODEL (es. gemini-2.5-flash-lite).",key:"La chiave del Coach è stata rifiutata. Controlla GEMINI_API_KEY su Vercel.",empty:"Risposta vuota. Riprova.",upstream:"Il servizio del Coach non risponde. Riprova.",auth:"Sessione scaduta. Accedi di nuovo.",daily:"Limite giornaliero raggiunto. Torna domani.",net:"Nessuna connessione. Riprova."}}
+};
+function cT(){return CT[S.lang]||CT.fr}
+var COMAX=30;
+function coLoad(){try{return JSON.parse(lsGet('ff-coach')||'[]')}catch(e){return[]}}
+function coSave(m){lsSet('ff-coach',JSON.stringify(m.slice(-20)))}
+function coUsed(){var d=new Date().toISOString().slice(0,10),o;try{o=JSON.parse(lsGet('ff-coachn')||'{}')}catch(e){o={}}return o.d===d?o.n:0}
+function coBump(){var d=new Date().toISOString().slice(0,10);lsSet('ff-coachn',JSON.stringify({d:d,n:coUsed()+1}))}
+function coMd(t){
+  var h=esc(t).split('\n').map(function(l){
+    l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+    if(/^#{1,4}\s/.test(l))return '<h3 style="margin:10px 0 4px">'+l.replace(/^#{1,4}\s/,'')+'</h3>';
+    if(/^\s*[-*]\s/.test(l))return '<div style="padding-left:14px;text-indent:-12px">• '+l.replace(/^\s*[-*]\s/,'')+'</div>';
+    return l?'<p style="margin:4px 0">'+l+'</p>':'';
+  });
+  return h.join('');
+}
+function coRender(){
+  var m=coLoad(),box=$('#co-msgs');
+  box.innerHTML=m.map(function(x){
+    return x.role==='user'
+      ?'<div style="text-align:right;margin:8px 0"><span style="display:inline-block;background:var(--accent,#2b6);color:#fff;padding:8px 12px;border-radius:14px;max-width:88%;text-align:left">'+esc(x.content)+'</span></div>'
+      :'<div style="margin:8px 0;padding:10px 12px;border-radius:14px;border:1px solid rgba(128,128,128,.35)">'+coMd(x.content)+'</div>';
+  }).join('');
+  box.scrollTop=box.scrollHeight;
+  $('#co-cnt').textContent=cT().left+Math.max(0,COMAX-coUsed());
+}
+function coInit(){
+  var c=cT();
+  $('#co-intro').textContent=c.intro;
+  $('#co-text').placeholder=c.ph;
+  $('#co-send').textContent=c.send;
+  $('#co-new').textContent=c.nw;
+  $('#co-notes-l').textContent=c.notes;
+  $('#co-wait').textContent=c.wait;
+  $('#co-chips').innerHTML=c.chips.map(function(x,i){return '<button class="btn" type="button" data-ci="'+i+'">'+esc(x[0])+'</button>'}).join('');
+  coRender();
+}
+function coStat(list){
+  var s=stats(list);
+  return {trades:s.n,wins:s.w,losses:s.l,breakeven:s.b,winRatePct:s.win==null?null:+s.win.toFixed(1),pnl:+s.pnl.toFixed(2),avgR:s.avgR==null?null:+s.avgR.toFixed(2),
+    stepsRespectedPct:s.fullPct==null?null:Math.round(s.fullPct),rulesRespectedPct:s.rulesPct==null?null:Math.round(s.rulesPct),avgStress:s.avgStress==null?null:+s.avgStress.toFixed(1),
+    withTrendPct:s.trendPct==null?null:Math.round(s.trendPct),overDailyLimit:s.over,toComplete:s.ni};
+}
+function coGroup(list,fn){
+  var g={};list.forEach(function(t){var k=fn(t);if(k==null||k==='')return;(g[k]=g[k]||[]).push(t)});
+  var o={};Object.keys(g).forEach(function(k){var s=stats(g[k]);o[k]={n:s.n,winRatePct:s.win==null?null:Math.round(s.win),pnl:+s.pnl.toFixed(2)}});return o;
+}
+function coData(withNotes){
+  var now=Date.now(),D=864e5;
+  function per(a,b){return trades.filter(function(t){var x=t.ts||0;return x>now-b*D&&x<=now-a*D})}
+  var all=trades.slice().sort(function(a,b){return (a.ts||0)-(b.ts||0)});
+  var cum=0,peak=0,dd=0,streak=0,worst=0;
+  all.forEach(function(t){cum+=t.pnl||0;if(cum>peak)peak=cum;if(peak-cum>dd)dd=peak-cum;var o=outcome(t);if(o==='L'){streak++;if(streak>worst)worst=streak}else if(o==='W')streak=0});
+  var gw=0,gl=0;all.forEach(function(t){if((t.pnl||0)>0)gw+=t.pnl;else gl+=-(t.pnl||0)});
+  var d={today:new Date().toISOString().slice(0,10),strategy:S.sname||'',stepsOfMethod:STEPS,maxTradesPerDay:MAXDAY,
+    overall:coStat(all),profitFactor:gl?+(gw/gl).toFixed(2):null,maxDrawdown:+dd.toFixed(2),longestLosingStreak:worst,
+    last7days:coStat(per(0,7)),previous7days:coStat(per(7,14)),last30days:coStat(per(0,30)),previous30days:coStat(per(30,60)),
+    byPair:coGroup(all,function(t){return t.pair}),bySide:coGroup(all,function(t){return t.side}),
+    byWeekday:coGroup(all,function(t){return t.date?new Date(t.date+'T12:00:00').getDay():null}),
+    byHour:coGroup(all,function(t){return t.time?String(t.time).slice(0,2):null}),
+    withOrAgainstTrend:coGroup(all,function(t){return t.trend?(t.trend.with?'with':'against'):null}),
+    withNews:coGroup(all,function(t){return t.news?(t.news.had?'news':'no news'):null}),
+    rulesFollowed:coGroup(all,function(t){return t.rules==null?null:(t.rules?'yes':'no')}),
+    emotionTags:coGroup((function(){var r=[];all.forEach(function(t){(t.tags||[]).forEach(function(g){r.push({tg:g,pnl:t.pnl,r:t.r})})});return r})(),function(x){return x.tg}),
+    lastTrades:all.slice(-120).map(function(t){var o={d:t.date,t:t.time,p:t.pair,s:t.side,pnl:t.pnl,r:t.r,steps:t.steps?t.steps.filter(Boolean).length:null,rules:t.rules,stress:t.stress};if(t.trend)o.trend=t.trend.with;if(t.tags&&t.tags.length)o.tags=t.tags;if(withNotes&&t.note)o.note=String(t.note).slice(0,200);return o})};
+  return JSON.stringify(d);
+}
+var coBusy=false;
+async function coSend(txt){
+  var c=cT();txt=(txt||'').trim();
+  if(!txt||coBusy)return;
+  if(!USER||USER.mode!=='cloud'){toast(c.e.need);return}
+  if(!trades.length){toast(c.e.none);return}
+  if(coUsed()>=COMAX){toast(c.e.limit);return}
+  var m=coLoad();m.push({role:'user',content:txt});coSave(m);coRender();$('#co-text').value='';
+  coBusy=true;$('#co-send').disabled=true;$('#co-wait').hidden=false;
+  var fail=function(k){m.pop();coSave(m);coRender();$('#co-text').value=txt;toast(c.e[k]||c.e.upstream)};
+  try{
+    var tk=await getToken();if(!tk){fail('auth');return}
+    var r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+tk},
+      body:JSON.stringify({messages:m.slice(-10),context:coData($('#co-notes').checked),lang:S.lang})});
+    var j={};try{j=await r.json()}catch(e){}
+    if(!r.ok||!j.reply){fail(j.error||'upstream');return}
+    m.push({role:'assistant',content:j.reply});coSave(m);coBump();coRender();
+  }catch(e){fail('net')}
+  finally{coBusy=false;$('#co-send').disabled=false;$('#co-wait').hidden=true}
+}
+document.addEventListener('click',function(e){
+  var t=e.target&&e.target.closest?e.target.closest('#co-send,#co-new,[data-ci]'):null;if(!t)return;
+  if(t.id==='co-send')coSend($('#co-text').value);
+  else if(t.id==='co-new'){coSave([]);coRender()}
+  else coSend(cT().chips[+t.getAttribute('data-ci')][1]);
+});
+
 /* ---------- v1.6: sauvegarde en ligne (Supabase, table ff_data) ---------- */
 var SY={st:'idle',at:0,n:null,code:'',shot:'ok'},syncing=false,syncAgain=false,syncT=0,pendingSync=false;
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
