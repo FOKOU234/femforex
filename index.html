@@ -40,6 +40,22 @@ details.rk>summary::after{content:'+';margin-left:auto;font-size:20px;color:var(
 details.rk[open]>summary::after{content:'–'}
 details.rk .rkb{padding:0 14px 14px;display:flex;flex-direction:column;gap:12px}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
+
+#lk-panel{display:flex;flex-direction:column;gap:14px;margin-top:6px}
+#lk-panel .lkh{font-size:12.5px;color:var(--muted);margin-bottom:6px;display:block}
+#lk-panel .sw{display:flex;flex-wrap:wrap;gap:10px}
+#lk-panel .sw button{width:38px;height:38px;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0}
+#lk-panel .sw button.on{outline:3px solid var(--ink);outline-offset:2px}
+#lk-panel .sw input[type=color]{width:38px;height:38px;border:0;padding:0;background:none;border-radius:50%}
+#lk-panel .bgs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+#lk-panel .bgs button,#lk-panel .szs button{min-height:44px;border:1px solid var(--line);border-radius:10px;background:var(--field);color:var(--ink);font:inherit;font-weight:600;cursor:pointer;padding:6px 8px}
+#lk-panel .bgs button.on,#lk-panel .szs button.on{border-color:var(--accent);background:var(--accent-soft)}
+#lk-panel .szs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+#lk-panel .szs.t3{grid-template-columns:repeat(3,1fr)}
+#lk-panel select,#lk-panel input[type=text]{width:100%}
+#lk-prev{padding:10px 12px;border:1px dashed var(--line);border-radius:10px}
+html[data-bg] .block,html[data-bg] header.top{background:color-mix(in srgb,var(--surface) 80%,transparent)!important;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+html[data-bg] body>nav,html[data-bg] .tabbar{background:color-mix(in srgb,var(--surface) 86%,transparent)!important}
 </style><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script></head><body>
 <script>
 (function(){
@@ -285,7 +301,7 @@ details.acc[open]>summary{border-bottom:1px solid var(--line)}
 .exitzone .quit{margin:0 0 18px}
 details.acc{scroll-margin-top:12px}
 
-/* v2.2 */
+/* v2.5 */
 #qtop{gap:10px}
 #qtop .rk{margin:0}
 #cal-box{min-height:0;margin-top:10px}
@@ -618,6 +634,7 @@ html.gated body{overflow:hidden}
         <label><input type="radio" name="theme" value="dark"><span>Sombre</span></label>
       </div>
       <p class="hint">Auto suit le réglage de ton téléphone.</p>
+      <div id="lk-panel" data-notr></div>
     </div></details>
     <div class="grp-h">Trading</div>
     <details class="block acc" id="acc-strat"><summary><span class="si"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg></span><span class="st"><b>Ma stratégie et mes règles</b><small>Tes étapes, tes règles, ton maximum par jour</small></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="accb">
@@ -686,7 +703,7 @@ var editingId=null,existingShots=[],newFiles=[],removedShots=[],pnlTouched=false
 var jOff=0,jAll=false,bOff=0,deleteArm=false;
 
 /* ---------- v1.1: paires, réglages, thème ---------- */
-var APP_VERSION='2.1';
+var APP_VERSION='2.5';
 var FEEDBACK_TO='femforex237@gmail.com';
 var MAXDAY=2;
 var PRESETS={
@@ -717,7 +734,7 @@ var PG=[
 ];
 var PAIR_BY={},PCOUNT=0;
 PG.forEach(function(g){g[1].forEach(function(p){PAIR_BY[p.v]=p;PCOUNT++})});
-var S={theme:'auto',name:'',favs:['GOLD','US30'],lang:'',pm:false,preset:'liq',sname:PRESETS.liq.n,steps:PRESETS.liq.steps.slice(),rules:PRESETS.liq.rules.slice(),max:2,cap:0,rp:1,dl:0};
+var S={theme:'auto',name:'',favs:['GOLD','US30'],lang:'',pm:false,preset:'liq',sname:PRESETS.liq.n,steps:PRESETS.liq.steps.slice(),rules:PRESETS.liq.rules.slice(),max:2,cap:0,rp:1,dl:0,cn:'Coach',look:{font:'def',size:1,accent:'',ink:'auto',bg:'off',int:1}};
 function mergeSettings(x){
   if(!x||typeof x!=='object')return;
   if(['auto','light','dark'].indexOf(x.theme)>-1)S.theme=x.theme;
@@ -732,13 +749,185 @@ function mergeSettings(x){
   if(typeof x.cap==='number'&&x.cap>=0&&x.cap<1e9)S.cap=x.cap;
   if(typeof x.rp==='number'&&x.rp>0&&x.rp<=20)S.rp=x.rp;
   if(typeof x.dl==='number'&&x.dl>=0&&x.dl<=50)S.dl=x.dl;
+  if(typeof x.cn==='string'){var cn=x.cn.replace(/[<>"&\n]/g,'').trim().slice(0,20);S.cn=cn||'Coach'}
+  if(x.look&&typeof x.look==='object')S.look=cleanLook(x.look);
   if(Array.isArray(x.favs))S.favs=x.favs.filter(function(v,i,a){return PAIR_BY[v]&&a.indexOf(v)===i});
 }
 function loadS(){try{mergeSettings(JSON.parse(localStorage.getItem('ff-settings')||'null'))}catch(e){}}
 function saveS(){try{localStorage.setItem('ff-settings',JSON.stringify(S))}catch(e){}
   try{var sg=JSON.stringify(SSUB()),old=lsGet('ff-ssig');if(old!=null&&sg!==old){lsSet('ff-ssig',sg);lsSet('ff-supd',String(Date.now()));if(USER)schedSync(2500)}}catch(e){}}
+
+/* ---------- v2.5: apparence (police, taille, couleurs, fond animé, nom de l'assistante) ---------- */
+var LKF={def:['Archivo',null,''],pop:['Poppins','Poppins:wght@400;600;700','sans-serif'],mon:['Montserrat','Montserrat:wght@400;600;700','sans-serif'],nun:['Nunito','Nunito:wght@400;600;700','sans-serif'],spa:['Space Grotesk','Space+Grotesk:wght@400;600;700','sans-serif'],pla:['Playfair Display','Playfair+Display:wght@400;600;700','serif'],lor:['Lora','Lora:wght@400;600;700','serif'],rob:['Roboto Mono','Roboto+Mono:wght@400;600;700','monospace']};
+var LKA=['#E2B34A','#4CC38A','#4DA3FF','#B58CFF','#FF6B8B','#FF8A3D','#2DD4D4','#E5E7EB'];
+var LKI={auto:null,cream:{d:'#F3E9D2',l:'#3A2E12'},ice:{d:'#CFE8FF',l:'#10304F'},mint:{d:'#CFF5E3',l:'#0F3D2A'},rose:{d:'#FFD9E2',l:'#4D1428'},gold:{d:'#F5D989',l:'#4A3600'}};
+var LKB=['off','net','matrix','stars','aurora','bubbles','waves','grid','candles','fireflies','rain','radar','ripples','fluid'];
+var LKS=[0.9,1,1.1,1.2];
+function cleanLook(x){
+  var o={font:'def',size:1,accent:'',ink:'auto',bg:'off',int:1};
+  if(LKF[x.font])o.font=x.font;
+  if(LKS.indexOf(x.size)>-1)o.size=x.size;
+  if(typeof x.accent==='string'&&/^#[0-9a-fA-F]{6}$/.test(x.accent))o.accent=x.accent;
+  if(x.ink in LKI)o.ink=x.ink;
+  if(LKB.indexOf(x.bg)>-1)o.bg=x.bg;
+  if(x.int===0||x.int===1||x.int===2)o.int=x.int;
+  return o;
+}
+var LKT={
+fr:{nm:"Nom de ton assistante",font:"Police du texte",size:"Taille du texte",acc:"Couleur principale",ink:"Couleur du texte",bg:"Fond animé",int:"Intensité",reset:"Réinitialiser l'apparence",prev:"Aperçu : Fem Forex, 4 147,98 $",bat:"Les animations utilisent un peu de batterie. Choisis « Aucun » pour économiser.",ints:["Discrète","Normale","Vive"],inks:["Auto","Crème","Glacier","Menthe","Rose","Or"],bgs:["Aucun","Réseau","Matrice","Étoiles","Aurore","Bulles","Vagues","Grille néon","Chandeliers","Lucioles","Pluie","Radar","Ondes","Dégradé fluide"]},
+en:{nm:"Your assistant's name",font:"Text font",size:"Text size",acc:"Main colour",ink:"Text colour",bg:"Animated background",int:"Intensity",reset:"Reset appearance",prev:"Preview: Fem Forex, 4,147.98 $",bat:"Animations use some battery. Choose “None” to save it.",ints:["Subtle","Normal","Vivid"],inks:["Auto","Cream","Ice","Mint","Rose","Gold"],bgs:["None","Network","Matrix","Stars","Aurora","Bubbles","Waves","Neon grid","Candlesticks","Fireflies","Rain","Radar","Ripples","Fluid gradient"]},
+es:{nm:"Nombre de tu asistente",font:"Fuente del texto",size:"Tamaño del texto",acc:"Color principal",ink:"Color del texto",bg:"Fondo animado",int:"Intensidad",reset:"Restablecer apariencia",prev:"Vista previa: Fem Forex, 4.147,98 $",bat:"Las animaciones gastan algo de batería. Elige «Ninguno» para ahorrar.",ints:["Discreta","Normal","Viva"],inks:["Auto","Crema","Hielo","Menta","Rosa","Oro"],bgs:["Ninguno","Red","Matriz","Estrellas","Aurora","Burbujas","Olas","Rejilla neón","Velas","Luciérnagas","Lluvia","Radar","Ondas","Degradado fluido"]},
+pt:{nm:"Nome da tua assistente",font:"Fonte do texto",size:"Tamanho do texto",acc:"Cor principal",ink:"Cor do texto",bg:"Fundo animado",int:"Intensidade",reset:"Repor aparência",prev:"Pré-visualização: Fem Forex, 4.147,98 $",bat:"As animações gastam alguma bateria. Escolhe «Nenhum» para poupar.",ints:["Discreta","Normal","Viva"],inks:["Auto","Creme","Gelo","Menta","Rosa","Ouro"],bgs:["Nenhum","Rede","Matriz","Estrelas","Aurora","Bolhas","Ondas","Grelha néon","Candles","Pirilampos","Chuva","Radar","Ondulações","Gradiente fluido"]},
+de:{nm:"Name deiner Assistentin",font:"Schriftart",size:"Textgröße",acc:"Hauptfarbe",ink:"Textfarbe",bg:"Animierter Hintergrund",int:"Intensität",reset:"Aussehen zurücksetzen",prev:"Vorschau: Fem Forex, 4.147,98 $",bat:"Animationen brauchen etwas Akku. Wähle „Keiner“, um zu sparen.",ints:["Dezent","Normal","Lebhaft"],inks:["Auto","Creme","Eis","Minze","Rosa","Gold"],bgs:["Keiner","Netzwerk","Matrix","Sterne","Aurora","Blasen","Wellen","Neon-Gitter","Kerzen","Glühwürmchen","Regen","Radar","Wellenringe","Fließverlauf"]},
+it:{nm:"Nome della tua assistente",font:"Carattere del testo",size:"Dimensione del testo",acc:"Colore principale",ink:"Colore del testo",bg:"Sfondo animato",int:"Intensità",reset:"Ripristina aspetto",prev:"Anteprima: Fem Forex, 4.147,98 $",bat:"Le animazioni consumano un po' di batteria. Scegli «Nessuno» per risparmiare.",ints:["Discreta","Normale","Vivace"],inks:["Auto","Crema","Ghiaccio","Menta","Rosa","Oro"],bgs:["Nessuno","Rete","Matrice","Stelle","Aurora","Bolle","Onde","Griglia neon","Candele","Lucciole","Pioggia","Radar","Increspature","Sfumatura fluida"]}
+};
+function lkT(){return LKT[S.lang]||LKT.fr}
+function lkDark(){return S.theme==='dark'||(S.theme!=='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)}
+function hex2rgb(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]}
+function rgbS(c,a){return 'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')'}
+function mixC(c,t,p){return [Math.round(c[0]+(t[0]-c[0])*p),Math.round(c[1]+(t[1]-c[1])*p),Math.round(c[2]+(t[2]-c[2])*p)]}
+function applyLook(){
+  var L=S.look||{},r=document.documentElement,st=r.style,dark=lkDark();
+  // police
+  var f=LKF[L.font]||LKF.def;
+  if(f[1]){
+    if(!document.getElementById('lk-font-'+L.font)){var lk=document.createElement('link');lk.id='lk-font-'+L.font;lk.rel='stylesheet';lk.href='https://fonts.googleapis.com/css2?family='+f[1]+'&display=swap';document.head.appendChild(lk)}
+    st.setProperty('--font',"'"+f[0]+"',system-ui,-apple-system,'Segoe UI',Roboto,"+f[2]);
+  }else st.removeProperty('--font');
+  // taille
+  if(L.size&&L.size!==1)st.zoom=String(L.size);else st.removeProperty('zoom');
+  // couleur principale
+  if(L.accent){
+    var a=hex2rgb(L.accent),lum=(0.299*a[0]+0.587*a[1]+0.114*a[2])/255;
+    st.setProperty('--accent',L.accent);
+    var ink=dark?L.accent:'#'+mixC(a,[0,0,0],.45).map(function(v){return ('0'+v.toString(16)).slice(-2)}).join('');
+    st.setProperty('--accent-ink',ink);
+    st.setProperty('--accent-soft',dark?rgbS(mixC(a,[21,26,31],.78),1):rgbS(mixC(a,[255,255,255],.72),1));
+    st.setProperty('--on-accent',lum>0.55?'#14110A':'#FFFFFF');
+  }else['--accent','--accent-ink','--accent-soft','--on-accent'].forEach(function(k){st.removeProperty(k)});
+  // couleur du texte
+  var iv=LKI[L.ink];
+  if(iv)st.setProperty('--ink',dark?iv.d:iv.l);else st.removeProperty('--ink');
+  // fond animé
+  bgxStart(L.bg||'off');
+}
+/* moteur de fonds animés */
+var BGX={raf:0,mode:'off',c:null,x:null,w:0,h:0,st:null,last:0,t0:0,col:[226,179,74],col2:[90,200,255],k:1};
+function bgxStop(){cancelAnimationFrame(BGX.raf);BGX.raf=0;if(BGX.c&&BGX.c.parentNode)BGX.c.parentNode.removeChild(BGX.c);BGX.c=null;BGX.x=null;document.documentElement.removeAttribute('data-bg')}
+function bgxStart(mode){
+  if(BGX.mode===mode&&BGX.c){bgxColors();return}
+  bgxStop();BGX.mode=mode;
+  if(mode==='off'||!BGXI[mode])return;
+  var c=document.createElement('canvas');c.id='bgx';c.setAttribute('aria-hidden','true');
+  c.style.cssText='position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;display:block';
+  document.body.insertBefore(c,document.body.firstChild);BGX.c=c;
+  document.documentElement.setAttribute('data-bg',mode);
+  bgxResize();bgxColors();BGX.t0=performance.now();BGX.last=0;
+  var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(rm){BGXD[mode](BGX.x,3000,BGX.w,BGX.h,BGX.col,BGX.col2,BGX.k,BGX.st);return}
+  BGX.raf=requestAnimationFrame(bgxLoop);
+}
+function bgxColors(){
+  var L=S.look||{},acc=L.accent||(lkDark()?'#E2B34A':'#D7A93B');
+  BGX.col=hex2rgb(acc);BGX.col2=lkDark()?[90,200,255]:[30,120,200];
+  BGX.k=[0.55,1,1.6][L.int==null?1:L.int]*(lkDark()?1:0.8);
+}
+function bgxResize(){
+  var c=BGX.c;if(!c)return;
+  var dpr=Math.min(window.devicePixelRatio||1,2),w=innerWidth,h=innerHeight;
+  BGX.w=w;BGX.h=h;c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);
+  BGX.x=c.getContext('2d');BGX.x.setTransform(dpr,0,0,dpr,0,0);
+  BGX.st=BGXI[BGX.mode](w,h);
+}
+function bgxLoop(ts){
+  BGX.raf=requestAnimationFrame(bgxLoop);
+  if(document.hidden||!BGX.x)return;
+  if(ts-BGX.last<33)return;BGX.last=ts;
+  try{BGXD[BGX.mode](BGX.x,ts-BGX.t0,BGX.w,BGX.h,BGX.col,BGX.col2,BGX.k,BGX.st)}catch(e){}
+}
+window.addEventListener('resize',function(){if(BGX.c)bgxResize()});
+function rnd(a,b){return a+Math.random()*(b-a)}
+var BGXI={
+net:function(w,h){var n=Math.max(24,Math.min(56,Math.round(w*h/15000))),a=[];for(var i=0;i<n;i++)a.push({x:rnd(0,w),y:rnd(0,h),vx:rnd(-.3,.3),vy:rnd(-.3,.3)});return a},
+matrix:function(w,h){var n=Math.ceil(w/16),y=[],sp=[];for(var i=0;i<n;i++){y.push(rnd(0,h/16));sp.push(rnd(.25,.7))}return {y:y,sp:sp}},
+stars:function(w,h){var a=[];for(var i=0;i<90;i++)a.push({x:rnd(0,w),y:rnd(0,h),z:Math.random(),tw:rnd(0,6)});return a},
+aurora:function(){return {}},
+bubbles:function(w,h){var a=[];for(var i=0;i<26;i++)a.push({x:rnd(0,w),y:rnd(0,h),r:rnd(4,22),sp:rnd(.3,1),ph:rnd(0,6)});return a},
+waves:function(){return {}},
+grid:function(){return {}},
+candles:function(w,h){var n=Math.ceil(w/14)+3,a=[],p=h*.6;for(var i=0;i<n;i++){var o=p;p=Math.max(h*.25,Math.min(h*.85,p+rnd(-22,22)+(h*.6-p)*.03));a.push({o:o,c:p,h:Math.min(o,p)-rnd(2,14),l:Math.max(o,p)+rnd(2,14)})}return {a:a,off:0}},
+fireflies:function(w,h){var a=[];for(var i=0;i<30;i++)a.push({x:rnd(0,w),y:rnd(0,h),a:rnd(0,6.28),sp:rnd(.2,.6),ph:rnd(0,6)});return a},
+rain:function(w,h){var a=[];for(var i=0;i<75;i++)a.push({x:rnd(0,w),y:rnd(0,h),l:rnd(10,26),sp:rnd(5,11)});return a},
+radar:function(){return {}},
+ripples:function(){return {p:[],last:0}},
+fluid:function(){return {}}
+};
+var BGXD={
+net:function(c,t,w,h,C,D,k,N){c.clearRect(0,0,w,h);var i,j,a,b,d;
+  for(i=0;i<N.length;i++){a=N[i];a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>w)a.vx*=-1;if(a.y<0||a.y>h)a.vy*=-1}
+  for(i=0;i<N.length;i++)for(j=i+1;j<N.length;j++){a=N[i];b=N[j];d=Math.hypot(a.x-b.x,a.y-b.y);if(d<125){c.strokeStyle=rgbS(C,(1-d/125)*.35*k);c.lineWidth=.8;c.beginPath();c.moveTo(a.x,a.y);c.lineTo(b.x,b.y);c.stroke()}}
+  c.fillStyle=rgbS(C,.7*k);for(i=0;i<N.length;i++){c.beginPath();c.arc(N[i].x,N[i].y,1.8,0,6.283);c.fill()}},
+matrix:function(c,t,w,h,C,D,k,S2){c.globalCompositeOperation='destination-out';c.fillStyle='rgba(0,0,0,.1)';c.fillRect(0,0,w,h);c.globalCompositeOperation='source-over';
+  c.font='14px monospace';var ch='01$¥€₿ABCDEF',i,x,y;
+  for(i=0;i<S2.y.length;i++){S2.y[i]+=S2.sp[i];y=Math.floor(S2.y[i])*16;x=i*16;c.fillStyle=rgbS(i%7===0?D:C,.85*k);c.fillText(ch.charAt(Math.floor(Math.random()*ch.length)),x,y);if(y>h&&Math.random()>.97)S2.y[i]=0}},
+stars:function(c,t,w,h,C,D,k,A){c.clearRect(0,0,w,h);for(var i=0;i<A.length;i++){var s=A[i];s.y-=.04+s.z*.14;if(s.y<-3){s.y=h+3;s.x=rnd(0,w)}c.fillStyle=rgbS(i%5===0?C:[255,255,255],(.25+.7*Math.abs(Math.sin(t/700+s.tw)))*k*.8);c.beginPath();c.arc(s.x,s.y,.4+s.z*1.5,0,6.283);c.fill()}},
+aurora:function(c,t,w,h,C,D,k){c.clearRect(0,0,w,h);var R=Math.max(w,h)*.6;for(var i=0;i<4;i++){var cx=w*(.5+.42*Math.sin(t/5200+i*1.7)),cy=h*(.35+.3*Math.cos(t/6400+i*2.1)),g=c.createRadialGradient(cx,cy,0,cx,cy,R);g.addColorStop(0,rgbS(i%2?D:C,.26*k));g.addColorStop(1,rgbS(i%2?D:C,0));c.fillStyle=g;c.fillRect(0,0,w,h)}},
+bubbles:function(c,t,w,h,C,D,k,A){c.clearRect(0,0,w,h);for(var i=0;i<A.length;i++){var b=A[i];b.y-=b.sp;b.x+=Math.sin(t/900+b.ph)*.3;if(b.y<-30){b.y=h+30;b.x=rnd(0,w)}c.beginPath();c.arc(b.x,b.y,b.r,0,6.283);c.fillStyle=rgbS(i%3===0?D:C,.07*k);c.fill();c.strokeStyle=rgbS(i%3===0?D:C,.38*k);c.lineWidth=1;c.stroke()}},
+waves:function(c,t,w,h,C,D,k){c.clearRect(0,0,w,h);for(var i=0;i<4;i++){c.beginPath();c.moveTo(0,h);for(var x=0;x<=w+8;x+=8)c.lineTo(x,h*(.66+.07*i)+Math.sin(x/(90+30*i)+t/(1300-170*i))*(14+4*i));c.lineTo(w,h);c.closePath();c.fillStyle=rgbS(i%2?D:C,.11*k+.02*i);c.fill()}},
+grid:function(c,t,w,h,C,D,k){c.clearRect(0,0,w,h);var hz=h*.55,i,p;c.lineWidth=1;
+  var sun=c.createRadialGradient(w/2,hz,0,w/2,hz,w*.5);sun.addColorStop(0,rgbS(C,.2*k));sun.addColorStop(1,rgbS(C,0));c.fillStyle=sun;c.fillRect(0,0,w,hz+4);
+  c.strokeStyle=rgbS(C,.35*k);
+  for(i=-14;i<=14;i++){c.beginPath();c.moveTo(w/2+i*8,hz);c.lineTo(w/2+i*w*.16,h);c.stroke()}
+  for(i=0;i<14;i++){p=((i+(t/900)%1)/14);var y=hz+(h-hz)*p*p;c.strokeStyle=rgbS(C,(.1+p*.35)*k);c.beginPath();c.moveTo(0,y);c.lineTo(w,y);c.stroke()}},
+candles:function(c,t,w,h,C,D,k,S2){c.clearRect(0,0,w,h);S2.off+=.6;if(S2.off>=14){S2.off=0;var l=S2.a[S2.a.length-1],o=l.c,p=Math.max(h*.25,Math.min(h*.85,o+rnd(-22,22)+(h*.6-o)*.03));S2.a.shift();S2.a.push({o:o,c:p,h:Math.min(o,p)-rnd(2,14),l:Math.max(o,p)+rnd(2,14)})}
+  for(var i=0;i<S2.a.length;i++){var q=S2.a[i],x=i*14-S2.off,up=q.c<q.o,col=up?[80,200,140]:[240,100,110];c.strokeStyle=rgbS(col,.4*k);c.fillStyle=rgbS(col,.28*k);c.lineWidth=1;c.beginPath();c.moveTo(x+4,q.h);c.lineTo(x+4,q.l);c.stroke();c.fillRect(x,Math.min(q.o,q.c),8,Math.max(2,Math.abs(q.o-q.c)))}},
+fireflies:function(c,t,w,h,C,D,k,A){c.clearRect(0,0,w,h);for(var i=0;i<A.length;i++){var f=A[i];f.a+=rnd(-.2,.2);f.x+=Math.cos(f.a)*f.sp;f.y+=Math.sin(f.a)*f.sp;if(f.x<0)f.x=w;if(f.x>w)f.x=0;if(f.y<0)f.y=h;if(f.y>h)f.y=0;var al=(.35+.65*Math.abs(Math.sin(t/900+f.ph)))*k,g=c.createRadialGradient(f.x,f.y,0,f.x,f.y,14);g.addColorStop(0,rgbS(C,.9*al));g.addColorStop(1,rgbS(C,0));c.fillStyle=g;c.fillRect(f.x-14,f.y-14,28,28)}},
+rain:function(c,t,w,h,C,D,k,A){c.clearRect(0,0,w,h);c.strokeStyle=rgbS(D,.32*k);c.lineWidth=1;c.beginPath();for(var i=0;i<A.length;i++){var r=A[i];r.y+=r.sp;r.x+=r.sp*.15;if(r.y>h){r.y=-r.l;r.x=rnd(-40,w)}c.moveTo(r.x,r.y);c.lineTo(r.x+r.l*.15,r.y+r.l)}c.stroke()},
+radar:function(c,t,w,h,C,D,k){c.clearRect(0,0,w,h);var cx=w/2,cy=h*.42,R=Math.min(w,h)*.8,i;c.lineWidth=1;
+  for(i=0;i<4;i++){var p=((t/3200+i/4)%1);c.strokeStyle=rgbS(C,(1-p)*.3*k);c.beginPath();c.arc(cx,cy,p*R,0,6.283);c.stroke()}
+  var a=t/1500;for(i=0;i<26;i++){c.fillStyle=rgbS(C,(1-i/26)*.22*k);c.beginPath();c.moveTo(cx,cy);c.arc(cx,cy,R,a-(i+1)*.04,a-i*.04);c.closePath();c.fill()}},
+ripples:function(c,t,w,h,C,D,k,S2){c.clearRect(0,0,w,h);if(t-S2.last>800){S2.last=t;S2.p.push({x:rnd(0,w),y:rnd(0,h),t0:t})}
+  S2.p=S2.p.filter(function(r){return t-r.t0<2600});c.lineWidth=1.5;S2.p.forEach(function(r,i){var p=(t-r.t0)/2600;c.strokeStyle=rgbS(i%2?D:C,(1-p)*.45*k);c.beginPath();c.arc(r.x,r.y,p*170,0,6.283);c.stroke()})},
+fluid:function(c,t,w,h,C,D,k){c.clearRect(0,0,w,h);var x0=w/2+Math.cos(t/6000)*w*.6,y0=h/2+Math.sin(t/6000)*h*.6,g=c.createLinearGradient(x0,y0,w-x0,h-y0);g.addColorStop(0,rgbS(C,.28*k));g.addColorStop(.5,rgbS(D,.16*k));g.addColorStop(1,rgbS(C,.24*k));c.fillStyle=g;c.fillRect(0,0,w,h)}
+};
+function renderLookPanel(){
+  var p=$('#lk-panel');if(!p)return;
+  var T=lkT(),L=S.look,h='';
+  h+='<div><span class="lkh">'+esc(T.nm)+'</span><input type="text" id="lk-cn" maxlength="20" value="'+esc(S.cn||'Coach')+'"></div>';
+  h+='<div><span class="lkh">'+esc(T.font)+'</span><select id="lk-font">'+Object.keys(LKF).map(function(k){return '<option value="'+k+'"'+(L.font===k?' selected':'')+'>'+esc(LKF[k][0])+'</option>'}).join('')+'</select></div>';
+  h+='<div><span class="lkh">'+esc(T.size)+'</span><div class="szs">'+LKS.map(function(v,i){return '<button type="button" data-lk="size" data-v="'+v+'" class="'+(L.size===v?'on':'')+'" style="font-size:'+(12+i*2)+'px">'+['A−','A','A+','A++'][i]+'</button>'}).join('')+'</div></div>';
+  h+='<div><span class="lkh">'+esc(T.acc)+'</span><div class="sw"><button type="button" data-lk="acc" data-v="" aria-label="Auto" class="'+(!L.accent?'on':'')+'" style="background:conic-gradient(#E2B34A,#4CC38A,#4DA3FF,#B58CFF,#FF6B8B,#E2B34A)"></button>'+LKA.map(function(c){return '<button type="button" data-lk="acc" data-v="'+c+'" aria-label="'+c+'" class="'+(L.accent&&L.accent.toLowerCase()===c.toLowerCase()?'on':'')+'" style="background:'+c+'"></button>'}).join('')+'<input type="color" id="lk-acc" value="'+(L.accent||'#E2B34A')+'" aria-label="Custom"></div></div>';
+  h+='<div><span class="lkh">'+esc(T.ink)+'</span><div class="sw">'+Object.keys(LKI).map(function(k,i){var v=LKI[k];return '<button type="button" data-lk="ink" data-v="'+k+'" aria-label="'+esc(T.inks[i])+'" title="'+esc(T.inks[i])+'" class="'+(L.ink===k?'on':'')+'" style="background:'+(v?(lkDark()?v.d:v.l):'linear-gradient(135deg,#E8ECEF 50%,#14181C 50%)')+'"></button>'}).join('')+'</div></div>';
+  h+='<div><span class="lkh">'+esc(T.bg)+'</span><div class="bgs">'+LKB.map(function(k,i){return '<button type="button" data-lk="bg" data-v="'+k+'" class="'+(L.bg===k?'on':'')+'">'+esc(T.bgs[i])+'</button>'}).join('')+'</div></div>';
+  h+='<div><span class="lkh">'+esc(T.int)+'</span><div class="szs t3">'+T.ints.map(function(n,i){return '<button type="button" data-lk="int" data-v="'+i+'" class="'+(L.int===i?'on':'')+'">'+esc(n)+'</button>'}).join('')+'</div></div>';
+  h+='<div id="lk-prev">'+esc(T.prev)+'</div><p class="hint">'+esc(T.bat)+'</p>';
+  h+='<button class="btn" type="button" data-lk="reset">'+esc(T.reset)+'</button>';
+  p.innerHTML=h;
+}
+function lkSet(k,v){S.look[k]=v;saveS();applyLook();renderLookPanel()}
+document.addEventListener('click',function(e){
+  var b=e.target&&e.target.closest?e.target.closest('#lk-panel [data-lk]'):null;if(!b)return;
+  var k=b.getAttribute('data-lk'),v=b.getAttribute('data-v');
+  if(k==='reset'){S.look=cleanLook({});saveS();applyLook();renderLookPanel();return}
+  if(k==='size')lkSet('size',parseFloat(v));
+  else if(k==='acc')lkSet('accent',v);
+  else if(k==='ink')lkSet('ink',v);
+  else if(k==='bg')lkSet('bg',v);
+  else if(k==='int')lkSet('int',parseInt(v,10));
+});
+document.addEventListener('change',function(e){
+  var t=e.target;if(!t||!t.closest||!t.closest('#lk-panel'))return;
+  if(t.id==='lk-font')lkSet('font',t.value);
+  else if(t.id==='lk-acc')lkSet('accent',t.value);
+});
+document.addEventListener('input',function(e){
+  var t=e.target;if(!t||t.id!=='lk-cn')return;
+  S.cn=t.value.replace(/[<>"&]/g,'').slice(0,20)||'Coach';saveS();
+  var h=document.querySelector('#b-coach h2');if(h)h.textContent=S.cn;
+});
+
 function applyTheme(){
-  applyStrategy();
+  applyStrategy();try{applyLook()}catch(e){}
   var r=document.documentElement;
   if(S.theme==='light'||S.theme==='dark')r.setAttribute('data-theme',S.theme);else r.removeAttribute('data-theme');
   var dark=S.theme==='dark'||(S.theme!=='light'&&window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches);
@@ -916,7 +1105,7 @@ function tnSheet(t){
   return h;
 }
 
-/* ---------- v2.2 : TradingView, mode rapide, calendrier ---------- */
+/* ---------- v2.5 : TradingView, mode rapide, calendrier ---------- */
 var TVMAP={GOLD:'OANDA:XAUUSD',XAGUSD:'OANDA:XAGUSD',XPTUSD:'OANDA:XPTUSD',XPDUSD:'OANDA:XPDUSD',USOIL:'TVC:USOIL',UKOIL:'TVC:UKOIL',NGAS:'NYMEX:NG1!',US30:'TVC:DJI',NAS100:'NASDAQ:NDX',US500:'SP:SPX',US2000:'TVC:RUT',GER40:'TVC:DAX',UK100:'TVC:UKX',FRA40:'TVC:CAC40',EU50:'TVC:SX5E',JP225:'TVC:NI225'};
 function tvSym(p){
   if(TVMAP[p])return TVMAP[p];
@@ -1083,7 +1272,7 @@ async function save(){
           var r=await assets.upload(blob,{type:'image/jpeg'});stored=r.id;
         }catch(e){stored=null}
       }
-      if(!stored)stored=await inlineShot(newFiles[i].file);
+      if(!stored){stored=newFiles[i].p?await newFiles[i].p:null;if(!stored)stored=await inlineShot(newFiles[i].file)}
       ids.push(stored);
     }
     if(editingId){var oldT=trades.filter(function(x){return x.id===editingId})[0];if(oldT){if(oldT.tk)d.tk=oldT.tk;if(oldT.cs)d.cs=oldT.cs}}
@@ -1244,7 +1433,18 @@ function dayPnl(){var td=ymd(new Date());return trades.filter(function(t){return
 function updateDL(){
   var b=$('#dlbanner');if(!b)return;
   var lim=S.cap*S.dl/100,p=dayPnl();
-  if(S.cap>0&&S.dl>0&&p<=-lim){b.textContent="Limite du jour atteinte : tu as perdu "+nf(-p,2)+" $ aujourd'hui (limite "+nf(lim,2)+" $). Arrête-toi pour aujourd'hui.";b.hidden=false}else b.hidden=true;
+  if(S.cap>0&&S.dl>0&&p<=-lim){b.textContent="Limite du jour atteinte : tu as perdu "+nf(-p,2)+" $ aujourd'hui (limite "+nf(lim,2)+" $). Arrête-toi pour aujourd'hui.";b.hidden=false}else{
+    var cd=cooldownMsg();
+    if(cd){b.textContent=cd;b.hidden=false}else b.hidden=true;
+  }
+}
+var CDM={fr:"Tu viens de perdre un trade. Respire : attends 15 minutes avant d'entrer à nouveau, et relis tes étapes.",en:"You just lost a trade. Breathe: wait 15 minutes before entering again, and re-read your steps.",es:"Acabas de perder una operación. Respira: espera 15 minutos antes de volver a entrar y relee tus pasos.",pt:"Acabaste de perder um trade. Respira: espera 15 minutos antes de entrar outra vez e relê os teus passos.",de:"Du hast gerade einen Trade verloren. Atme durch: warte 15 Minuten, bevor du wieder einsteigst, und lies deine Schritte noch einmal.",it:"Hai appena perso un trade. Respira: aspetta 15 minuti prima di rientrare e rileggi i tuoi passaggi."};
+function cooldownMsg(){
+  var now=Date.now(),last=null;
+  trades.forEach(function(t){if(t.ts&&t.ts<=now&&(!last||t.ts>last.ts))last=t});
+  if(!last||outcome(last)!=='L')return '';
+  if(now-last.ts>75*60000)return '';
+  return CDM[S.lang]||CDM.fr;
 }
 function updateRisk(d){
   var out=$('#rk-out');if(!out)return;
@@ -1581,7 +1781,7 @@ function rulesList(){var u=$('#rules-list');if(u)u.innerHTML=S.rules.map(functio
 function lines(v,mx){return v.split('\n').map(function(x){return x.trim().slice(0,90)}).filter(Boolean).slice(0,mx)}
 function renderSettings(){
   stFill();fillLangSelect($('#s-lang'));renderAccount();
-  setRadio('theme',S.theme);$('#s-name').value=S.name;
+  setRadio('theme',S.theme);$('#s-name').value=S.name;try{renderLookPanel()}catch(e){}
   renderPairList();
   $('#about').innerHTML='<b>Fem Forex</b> · version '+APP_VERSION+'<br>Un journal de trading pour noter, comprendre et corriger tes trades. Tes trades et tes captures sont sauvegardés sur ton téléphone et dans ton compte en ligne.<br>Cet outil ne donne pas de conseil financier. Le trading comporte un risque de perte.';
 }
@@ -1755,25 +1955,25 @@ function fillLangSelect(sel){
   sel.value=S.lang;
 }
 
-/* ---------- v2.2: Coach ---------- */
+/* ---------- v2.5: Coach ---------- */
 var CT={
 fr:{intro:"Ton coach lit tous tes trades et t'explique simplement quoi améliorer. Il ne prédit pas le marché.",ph:"Pose ta question…",send:"Envoyer",nw:"Nouvelle conversation",notes:"Inclure mes notes écrites",wait:"Le Coach réfléchit…",left:"questions restantes aujourd'hui : ",
- chips:[["Est-ce que je fais moins d'erreurs ?","Compare mes 7 derniers jours aux 7 jours d'avant : est-ce que je fais moins ou plus d'erreurs ?"],["Bilan complet","Fais-moi un bilan complet de mes trades : points forts, points faibles, et ce qu'il faut améliorer."],["Que corriger en premier ?","Quelle est la toute première chose que je dois corriger, d'après mes trades ?"],["Mes meilleurs moments","Dans quelles paires, sessions et jours je trade le mieux et le moins bien ?"]],
+ chips:[["Est-ce que je fais moins d'erreurs ?","Compare mes 7 derniers jours aux 7 jours d'avant : est-ce que je fais moins ou plus d'erreurs ?"],["Bilan complet","Fais-moi un bilan complet de mes trades : points forts, points faibles, et ce qu'il faut améliorer."],["Que corriger en premier ?","Quelle est la toute première chose que je dois corriger, d'après mes trades ?"],["Mes meilleurs moments","Dans quelles paires, sessions et jours je trade le mieux et le moins bien ?"],["Bilan de la semaine","Fais le bilan de ma semaine en cours : ce qui a bien marché, ce qui a mal marché, et une chose à améliorer."],["Mes erreurs les plus chères","Quelles erreurs ou émotions me coûtent le plus d'argent, et quand est-ce que je les fais ?"]],
  e:{need:"Connecte-toi en mode en ligne pour utiliser le Coach.",none:"Ajoute d'abord quelques trades dans le journal.",limit:"Tu as atteint la limite du jour. Reviens demain.",no_key:"La clé du Coach n'est pas installée dans Vercel (GEMINI_API_KEY).",quota:"Le Coach gratuit est saturé pour le moment. Réessaie dans quelques minutes.",model:"Le modèle n'existe plus. Dans Vercel, change GEMINI_MODEL (ex. gemini-2.5-flash-lite).",key:"La clé du Coach est refusée. Vérifie GEMINI_API_KEY dans Vercel.",empty:"Réponse vide. Réessaie.",upstream:"Le service du Coach ne répond pas. Réessaie.",auth:"Session expirée. Reconnecte-toi.",daily:"Limite du jour atteinte. Reviens demain.",net:"Pas de connexion. Réessaie."}},
 en:{intro:"Your coach reads all your trades and explains simply what to improve. It does not predict the market.",ph:"Ask your question…",send:"Send",nw:"New chat",notes:"Include my written notes",wait:"Coach is thinking…",left:"questions left today: ",
- chips:[["Am I making fewer mistakes?","Compare my last 7 days with the 7 days before: am I making fewer or more mistakes?"],["Full review","Give me a full review of my trades: strengths, weaknesses and what to improve."],["What to fix first?","What is the very first thing I should fix, based on my trades?"],["My best moments","In which pairs, sessions and days do I trade best and worst?"]],
+ chips:[["Am I making fewer mistakes?","Compare my last 7 days with the 7 days before: am I making fewer or more mistakes?"],["Full review","Give me a full review of my trades: strengths, weaknesses and what to improve."],["What to fix first?","What is the very first thing I should fix, based on my trades?"],["My best moments","In which pairs, sessions and days do I trade best and worst?"],["Week review","Review my current week: what worked, what did not, and one thing to improve."],["My costliest mistakes","Which mistakes or emotions cost me the most money, and when do I make them?"]],
  e:{need:"Sign in online to use the Coach.",none:"Add a few trades to the journal first.",limit:"Daily limit reached. Come back tomorrow.",no_key:"The Coach key is not installed in Vercel (GEMINI_API_KEY).",quota:"The free Coach is busy right now. Try again in a few minutes.",model:"The model no longer exists. In Vercel, change GEMINI_MODEL (e.g. gemini-2.5-flash-lite).",key:"The Coach key was refused. Check GEMINI_API_KEY in Vercel.",empty:"Empty answer. Try again.",upstream:"The Coach service is not answering. Try again.",auth:"Session expired. Sign in again.",daily:"Daily limit reached. Come back tomorrow.",net:"No connection. Try again."}},
 es:{intro:"Tu coach lee todas tus operaciones y te explica con sencillez qué mejorar. No predice el mercado.",ph:"Haz tu pregunta…",send:"Enviar",nw:"Nueva conversación",notes:"Incluir mis notas escritas",wait:"El Coach está pensando…",left:"preguntas restantes hoy: ",
- chips:[["¿Cometo menos errores?","Compara mis últimos 7 días con los 7 anteriores: ¿cometo menos o más errores?"],["Balance completo","Hazme un balance completo de mis operaciones: puntos fuertes, débiles y qué mejorar."],["¿Qué corregir primero?","¿Qué es lo primero que debo corregir según mis operaciones?"],["Mis mejores momentos","¿En qué pares, sesiones y días opero mejor y peor?"]],
+ chips:[["¿Cometo menos errores?","Compara mis últimos 7 días con los 7 anteriores: ¿cometo menos o más errores?"],["Balance completo","Hazme un balance completo de mis operaciones: puntos fuertes, débiles y qué mejorar."],["¿Qué corregir primero?","¿Qué es lo primero que debo corregir según mis operaciones?"],["Mis mejores momentos","¿En qué pares, sesiones y días opero mejor y peor?"],["Balance de la semana","Haz el balance de mi semana actual: qué funcionó, qué no y una cosa a mejorar."],["Mis errores más caros","¿Qué errores o emociones me cuestan más dinero y cuándo los cometo?"]],
  e:{need:"Inicia sesión en línea para usar el Coach.",none:"Añade primero algunas operaciones al diario.",limit:"Límite diario alcanzado. Vuelve mañana.",no_key:"La clave del Coach no está instalada en Vercel (GEMINI_API_KEY).",quota:"El Coach gratuito está saturado. Inténtalo en unos minutos.",model:"El modelo ya no existe. En Vercel cambia GEMINI_MODEL (p. ej. gemini-2.5-flash-lite).",key:"Se rechazó la clave del Coach. Revisa GEMINI_API_KEY en Vercel.",empty:"Respuesta vacía. Inténtalo de nuevo.",upstream:"El servicio del Coach no responde. Inténtalo de nuevo.",auth:"Sesión caducada. Vuelve a iniciar sesión.",daily:"Límite diario alcanzado. Vuelve mañana.",net:"Sin conexión. Inténtalo de nuevo."}},
 pt:{intro:"O teu coach lê todos os teus trades e explica de forma simples o que melhorar. Não prevê o mercado.",ph:"Faz a tua pergunta…",send:"Enviar",nw:"Nova conversa",notes:"Incluir as minhas notas escritas",wait:"O Coach está a pensar…",left:"perguntas restantes hoje: ",
- chips:[["Estou a errar menos?","Compara os meus últimos 7 dias com os 7 anteriores: estou a errar menos ou mais?"],["Balanço completo","Faz-me um balanço completo dos meus trades: pontos fortes, fracos e o que melhorar."],["O que corrigir primeiro?","Qual é a primeira coisa que devo corrigir, segundo os meus trades?"],["Os meus melhores momentos","Em que pares, sessões e dias opero melhor e pior?"]],
+ chips:[["Estou a errar menos?","Compara os meus últimos 7 dias com os 7 anteriores: estou a errar menos ou mais?"],["Balanço completo","Faz-me um balanço completo dos meus trades: pontos fortes, fracos e o que melhorar."],["O que corrigir primeiro?","Qual é a primeira coisa que devo corrigir, segundo os meus trades?"],["Os meus melhores momentos","Em que pares, sessões e dias opero melhor e pior?"],["Balanço da semana","Faz o balanço da minha semana atual: o que funcionou, o que não funcionou e uma coisa a melhorar."],["Os meus erros mais caros","Que erros ou emoções me custam mais dinheiro e quando os cometo?"]],
  e:{need:"Inicia sessão online para usar o Coach.",none:"Adiciona primeiro alguns trades ao diário.",limit:"Limite diário atingido. Volta amanhã.",no_key:"A chave do Coach não está instalada no Vercel (GEMINI_API_KEY).",quota:"O Coach gratuito está ocupado. Tenta daqui a uns minutos.",model:"O modelo já não existe. No Vercel muda GEMINI_MODEL (ex. gemini-2.5-flash-lite).",key:"A chave do Coach foi recusada. Verifica GEMINI_API_KEY no Vercel.",empty:"Resposta vazia. Tenta de novo.",upstream:"O serviço do Coach não responde. Tenta de novo.",auth:"Sessão expirada. Inicia sessão de novo.",daily:"Limite diário atingido. Volta amanhã.",net:"Sem ligação. Tenta de novo."}},
 de:{intro:"Dein Coach liest alle deine Trades und erklärt einfach, was du verbessern kannst. Er sagt den Markt nicht voraus.",ph:"Stelle deine Frage…",send:"Senden",nw:"Neuer Chat",notes:"Meine Notizen einbeziehen",wait:"Der Coach denkt nach…",left:"Fragen heute übrig: ",
- chips:[["Mache ich weniger Fehler?","Vergleiche meine letzten 7 Tage mit den 7 Tagen davor: Mache ich weniger oder mehr Fehler?"],["Komplette Auswertung","Gib mir eine komplette Auswertung meiner Trades: Stärken, Schwächen und was zu verbessern ist."],["Was zuerst ändern?","Was soll ich laut meinen Trades als Allererstes korrigieren?"],["Meine besten Zeiten","In welchen Paaren, Sessions und Tagen handle ich am besten und am schlechtesten?"]],
+ chips:[["Mache ich weniger Fehler?","Vergleiche meine letzten 7 Tage mit den 7 Tagen davor: Mache ich weniger oder mehr Fehler?"],["Komplette Auswertung","Gib mir eine komplette Auswertung meiner Trades: Stärken, Schwächen und was zu verbessern ist."],["Was zuerst ändern?","Was soll ich laut meinen Trades als Allererstes korrigieren?"],["Meine besten Zeiten","In welchen Paaren, Sessions und Tagen handle ich am besten und am schlechtesten?"],["Wochenauswertung","Werte meine aktuelle Woche aus: was lief gut, was nicht, und eine Sache zum Verbessern."],["Meine teuersten Fehler","Welche Fehler oder Emotionen kosten mich am meisten Geld und wann mache ich sie?"]],
  e:{need:"Melde dich online an, um den Coach zu nutzen.",none:"Füge zuerst ein paar Trades ins Journal ein.",limit:"Tageslimit erreicht. Komm morgen wieder.",no_key:"Der Coach-Schlüssel ist nicht in Vercel installiert (GEMINI_API_KEY).",quota:"Der kostenlose Coach ist ausgelastet. Versuche es in ein paar Minuten.",model:"Das Modell gibt es nicht mehr. Ändere in Vercel GEMINI_MODEL (z. B. gemini-2.5-flash-lite).",key:"Der Coach-Schlüssel wurde abgelehnt. Prüfe GEMINI_API_KEY in Vercel.",empty:"Leere Antwort. Versuche es erneut.",upstream:"Der Coach-Dienst antwortet nicht. Versuche es erneut.",auth:"Sitzung abgelaufen. Melde dich neu an.",daily:"Tageslimit erreicht. Komm morgen wieder.",net:"Keine Verbindung. Versuche es erneut."}},
 it:{intro:"Il tuo coach legge tutti i tuoi trade e spiega in modo semplice cosa migliorare. Non prevede il mercato.",ph:"Fai la tua domanda…",send:"Invia",nw:"Nuova conversazione",notes:"Includi le mie note scritte",wait:"Il Coach sta pensando…",left:"domande rimaste oggi: ",
- chips:[["Faccio meno errori?","Confronta i miei ultimi 7 giorni con i 7 precedenti: faccio meno o più errori?"],["Bilancio completo","Fammi un bilancio completo dei miei trade: punti forti, deboli e cosa migliorare."],["Cosa correggere prima?","Qual è la prima cosa da correggere, in base ai miei trade?"],["I miei momenti migliori","In quali coppie, sessioni e giorni opero meglio e peggio?"]],
+ chips:[["Faccio meno errori?","Confronta i miei ultimi 7 giorni con i 7 precedenti: faccio meno o più errori?"],["Bilancio completo","Fammi un bilancio completo dei miei trade: punti forti, deboli e cosa migliorare."],["Cosa correggere prima?","Qual è la prima cosa da correggere, in base ai miei trade?"],["I miei momenti migliori","In quali coppie, sessioni e giorni opero meglio e peggio?"],["Bilancio della settimana","Fai il bilancio della mia settimana corrente: cosa ha funzionato, cosa no e una cosa da migliorare."],["I miei errori più costosi","Quali errori o emozioni mi costano più soldi e quando li faccio?"]],
  e:{need:"Accedi online per usare il Coach.",none:"Aggiungi prima qualche trade al diario.",limit:"Limite giornaliero raggiunto. Torna domani.",no_key:"La chiave del Coach non è installata su Vercel (GEMINI_API_KEY).",quota:"Il Coach gratuito è occupato. Riprova tra qualche minuto.",model:"Il modello non esiste più. Su Vercel cambia GEMINI_MODEL (es. gemini-2.5-flash-lite).",key:"La chiave del Coach è stata rifiutata. Controlla GEMINI_API_KEY su Vercel.",empty:"Risposta vuota. Riprova.",upstream:"Il servizio del Coach non risponde. Riprova.",auth:"Sessione scaduta. Accedi di nuovo.",daily:"Limite giornaliero raggiunto. Torna domani.",net:"Nessuna connessione. Riprova."}}
 };
 function cT(){return CT[S.lang]||CT.fr}
@@ -1803,7 +2003,7 @@ function coRender(){
 }
 function coInit(){
   var c=cT();
-  $('#co-intro').textContent=c.intro;
+  $('#co-intro').textContent=c.intro;var cH=document.querySelector('#b-coach h2');if(cH)cH.textContent=S.cn||'Coach';
   $('#co-text').placeholder=c.ph;
   $('#co-send').textContent=c.send;
   $('#co-new').textContent=c.nw;
@@ -1840,7 +2040,8 @@ function coData(withNotes){
     rulesFollowed:coGroup(all,function(t){return t.rules==null?null:(t.rules?'yes':'no')}),
     emotionTags:coGroup((function(){var r=[];all.forEach(function(t){(t.tags||[]).forEach(function(g){r.push({tg:g,pnl:t.pnl,r:t.r})})});return r})(),function(x){return x.tg}),
     lastTrades:all.slice(-120).map(function(t){var o={d:t.date,t:t.time,p:t.pair,s:t.side,pnl:t.pnl,r:t.r,steps:t.steps?t.steps.filter(Boolean).length:null,rules:t.rules,stress:t.stress};if(t.trend)o.trend=t.trend.with;if(t.tags&&t.tags.length)o.tags=t.tags;if(withNotes&&t.note)o.note=String(t.note).slice(0,200);return o})};
-  return JSON.stringify(d);
+  var nm=S.cn||'Coach';
+  return "[Le trader t'a donné un prénom : tu t'appelles "+nm+". Présente-toi sous ce nom, sans le commenter.]\n"+JSON.stringify(d);
 }
 var coBusy=false;
 async function coSend(txt){
@@ -1874,7 +2075,7 @@ var SY={st:'idle',at:0,n:null,code:'',shot:'ok'},syncing=false,syncAgain=false,s
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function lsSet(k,v){try{if(v==null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}}
 function jget(k,d){try{return JSON.parse(lsGet(k)||'null')||d}catch(e){return d}}
-function SSUB(){return {name:S.name,favs:S.favs,pm:S.pm,preset:S.preset,sname:S.sname,steps:S.steps,rules:S.rules,max:S.max,cap:S.cap,rp:S.rp,dl:S.dl}}
+function SSUB(){return {name:S.name,favs:S.favs,pm:S.pm,preset:S.preset,sname:S.sname,steps:S.steps,rules:S.rules,max:S.max,cap:S.cap,rp:S.rp,dl:S.dl,cn:S.cn,look:S.look}}
 function setSY(st,x){SY.st=st;if(x){for(var k in x)SY[k]=x[k]}try{renderAccount()}catch(e){}}
 function addTomb(id){var d=jget('ff-del',{});d[id]=Date.now();lsSet('ff-del',JSON.stringify(d))}
 function schedSync(ms){lsSet('ff-dirty','1');clearTimeout(syncT);syncT=setTimeout(function(){syncNow()},ms==null?1500:ms)}
@@ -1953,13 +2154,14 @@ async function syncNow(manual){
     async function upShots(id,L){
       var sh=L.shots||[];if(!sh.length&&!(L.cs&&L.cs.length))return L;
       if(shotErr)return L;
-      var cs=[],oldcs=L.cs||[];
+      var cs=[],oldcs=L.cs||[],jobs=[];
       for(var i=0;i<sh.length;i++){
         if(String(sh[i]).indexOf('data:')!==0)continue;
         var p=shotPath(uid,id,sh[i]);
-        if(oldcs.indexOf(p)<0){try{await stoUp(tok,p,sh[i])}catch(e){shotFail(e);return L}}
+        if(oldcs.indexOf(p)<0)jobs.push(stoUp(tok,p,sh[i]));
         cs.push(p);
       }
+      try{await Promise.all(jobs)}catch(e){shotFail(e);return L}
       if(cs.join('|')!==oldcs.join('|')){var o=JSON.parse(JSON.stringify(L));o.cs=cs;await saveLocal(id,o);L=o;L.id=id}
       return L;
     }
@@ -2254,7 +2456,7 @@ $('#f-files').addEventListener('change',function(e){
   var files=Array.prototype.slice.call(e.target.files||[]),added=0;
   files.forEach(function(f){
     if(existingShots.length+newFiles.length>=maxShots())return;
-    newFiles.push({file:f,url:URL.createObjectURL(f)});added++;
+    var en={file:f,url:URL.createObjectURL(f)};if(!assets){en.p=inlineShot(f).catch(function(){return null})}newFiles.push(en);added++;
   });
   e.target.value='';renderShots();
   if(added)toast(added+' capture'+(added>1?'s ajoutées':' ajoutée'));
