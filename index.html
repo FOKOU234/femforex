@@ -704,7 +704,7 @@ var editingId=null,existingShots=[],newFiles=[],removedShots=[],pnlTouched=false
 var jOff=0,jAll=false,bOff=0,deleteArm=false;
 
 /* ---------- v1.1: paires, réglages, thème ---------- */
-var APP_VERSION='2.6';
+var APP_VERSION='2.7';
 var FEEDBACK_TO='femforex237@gmail.com';
 var MAXDAY=2;
 var PRESETS={
@@ -815,6 +815,11 @@ function renderMissed(){
   missed.forEach(function(m){by[m.why]=by[m.why]||{n:0,w:0};by[m.why].n++;if(m.would==='win'){w++;by[m.why].w++;if(m.r!=null){rs+=m.r;if(m.why==='fear'||m.why==='slow')rsFear+=m.r}}else if(m.would==='lose')l++});
   h+='<div class="ana-kv"><div><span>'+esc(T.total)+'</span><b>'+missed.length+'</b></div><div><span>'+esc(T.wins)+'</span><b class="gain">'+w+'</b></div><div><span>'+esc(T.loses)+'</span><b class="loss">'+l+'</b></div><div><span>R</span><b class="'+(rs>0?'gain':'')+'">'+(rs?sgn(rs,2,' R'):'–')+'</b></div></div>';
   h+='<div class="lbl-h" style="margin:12px 0 6px">'+esc(T.byr)+'</div><ul class="todo">'+MOK.filter(function(k){return by[k]}).map(function(k){return '<li><b>'+esc(T.reasons[MOK.indexOf(k)])+'</b> · '+by[k].n+' ('+by[k].w+' ✓)</li>'}).join('')+'</ul>';
+  var SESM=[['Asia 00–07',0,7],['London 07–12',7,12],['London + New York 12–16',12,16],['New York 16–21',16,21],['Night 21–24',21,24]],sb=SESM.map(function(x){return {n:x[0],c:0,w:0}});
+  missed.forEach(function(m){if(!m.ts)return;var u=new Date(m.ts).getUTCHours();for(var q=0;q<SESM.length;q++)if(u>=SESM[q][1]&&u<SESM[q][2]){sb[q].c++;if(m.would==='win')sb[q].w++}});
+  sb=sb.filter(function(x){return x.c>0}).sort(function(a,b){return b.c-a.c});
+  if(sb.length){var MH={fr:'Quand tu les rates (heure GMT)',en:'When you miss them (GMT)',es:'Cuándo las pierdes (hora GMT)',pt:'Quando as perdes (hora GMT)',de:'Wann du sie verpasst (GMT)',it:'Quando le perdi (ora GMT)'};
+    h+='<div class="lbl-h" style="margin:12px 0 6px">'+esc(MH[S.lang]||MH.fr)+'</div><ul class="todo">'+sb.map(function(x){return '<li><b>'+esc(x.n)+'</b> · '+x.c+' ('+x.w+' ✓)</li>'}).join('')+'</ul>'}
   if(rsFear>0)h+='<p class="hint">'+esc(T.cost)+' <b>'+sgn(rsFear,2,' R')+'</b>.</p>';
   h+='<div class="lbl-h" style="margin:12px 0 6px">'+esc(T.head)+'</div>'+missed.slice(0,15).map(function(m){
     var rn=T.reasons[Math.max(0,MOK.indexOf(m.why))],wd=m.would==='win'?T.win:m.would==='lose'?T.lose:T.unk;
