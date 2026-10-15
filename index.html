@@ -58,11 +58,19 @@ html[data-bg] .block,html[data-bg] header.top{background:color-mix(in srgb,var(-
 html[data-bg] body>nav,html[data-bg] .tabbar{background:color-mix(in srgb,var(--surface) 86%,transparent)!important}
 
 nav.tabs{padding-left:6px!important;padding-right:6px!important}
-nav.tabs .in{grid-template-columns:repeat(6,1fr)!important;gap:2px!important}
+nav.tabs .in{grid-template-columns:repeat(5,1fr)!important;gap:2px!important}
 nav.tabs button{font-size:10.5px!important;padding:0!important;min-width:0}
 nav.tabs button span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 nav.tabs button.cxn{gap:3px}
+nav.tabs button.cxn svg{stroke:var(--accent);stroke-width:2}
+nav.tabs button.cxn{color:var(--ink)}
+nav.tabs button.cxn[aria-selected=true] svg{stroke:var(--ink)}
 nav.tabs button.cxn .sp{fill:var(--accent);stroke:none}
+.hr{display:flex;align-items:center;gap:8px}
+.gear{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none}
+.gear svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linejoin:round}
+header.top .sub{display:none}
+header.top .brand{min-width:0}
 nav.tabs button.cxn[aria-selected=true] .sp{fill:var(--accent)}
 @keyframes cxsh{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
 #v-coach:not([hidden]){display:flex;flex-direction:column;position:fixed;left:0;right:0;top:0;bottom:64px;z-index:3;overflow:hidden;background:var(--bg)}
@@ -470,7 +478,7 @@ html.gated body{overflow:hidden}
 <div class="wrap">
   <header class="top">
     <div class="brand"><img id="logo" alt="" width="38" height="38"><div><h1>Fem Forex</h1><div class="sub" id="hsub">Liquidité + order blocks · compte démo</div></div></div>
-    <div class="pill" id="daypill">Aujourd'hui <b id="daycount">0</b></div>
+    <div class="hr"><div class="pill" id="daypill">Aujourd'hui <b id="daycount">0</b></div><button type="button" class="gear" data-tab="reglages" aria-label="Réglages"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z"/><path d="M19.4 13.5a7.7 7.7 0 0 0 0-3l1.9-1.5-1.9-3.3-2.3.9a7.6 7.6 0 0 0-2.6-1.5L14.1 2.6h-3.8l-.4 2.5a7.6 7.6 0 0 0-2.6 1.5l-2.3-.9-1.9 3.3 1.9 1.5a7.7 7.7 0 0 0 0 3l-1.9 1.5 1.9 3.3 2.3-.9c.8.6 1.7 1.1 2.6 1.5l.4 2.5h3.8l.4-2.5c.9-.4 1.8-.9 2.6-1.5l2.3.9 1.9-3.3z"/></svg></button></div>
   </header>
   <div id="banner" class="banner err" hidden></div>
 
@@ -749,12 +757,11 @@ html.gated body{overflow:hidden}
 
 <nav class="tabs" aria-label="Sections">
   <div class="in" role="tablist">
-    <button role="tab" data-tab="reglages" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 8h9M17 8h3M4 16h3M11 16h9"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/></svg>Réglages</button>
     <button role="tab" data-tab="accueil" aria-selected="true"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 9.5V20h14V9.5"/></svg>Accueil</button>
     <button role="tab" data-tab="saisie" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Saisie</button>
     <button role="tab" data-tab="journal" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Journal</button>
     <button role="tab" data-tab="bilan" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Bilan</button>
-    <button role="tab" data-tab="coach" aria-selected="false" class="cxn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5h12A2.5 2.5 0 0 1 20.5 7v7a2.5 2.5 0 0 1-2.5 2.5h-5.2L9 20v-3.5H6A2.5 2.5 0 0 1 3.5 14V7A2.5 2.5 0 0 1 6 4.5z"/><path class="sp" d="M12 7.6l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"/></svg><span id="cxn-l" data-notr>Coach</span></button>
+    <button role="tab" data-tab="coach" aria-selected="false" class="cxn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5h12A2.5 2.5 0 0 1 20.5 7v7a2.5 2.5 0 0 1-2.5 2.5h-5.2L9 20v-3.5H6A2.5 2.5 0 0 1 3.5 14V7A2.5 2.5 0 0 1 6 4.5z"/><path class="sp" d="M12 7.6l.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"/></svg><span>Chat</span></button>
   </div>
 </nav>
 
@@ -2223,7 +2230,7 @@ function cvCur(){return lsGet('ff-conv-cur')||''}
 function cvSetCur(id){lsSet('ff-conv-cur',id||'')}
 function cvGet(id){var a=cvLoad();for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null}
 function cvMsgs(){var c=cvGet(cvCur());return c?c.m:[]}
-function coNameSync(){var n=S.cn||'Coach',l=$('#cxn-l');if(l)l.textContent=n.length>8?n.slice(0,7)+'…':n}
+function coNameSync(){}
 function coInit(){
   var T=cxT(),C=cT();coNameSync();
   $('#cx-text').placeholder=T.ph;
