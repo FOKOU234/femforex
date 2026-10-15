@@ -612,6 +612,7 @@ html.gated body{overflow:hidden}
         <label><input type="radio" name="aper" value="30"><span>30 jours</span></label>
       </div></div>
       <div id="ana-out"></div>
+      <div id="mo-out" data-notr></div>
     </div>
   </section>
 
@@ -698,12 +699,12 @@ var STEPS=['Niveau de liquidité repéré (haut ou bas évident)','Le prix a bal
 var $=function(s){return document.querySelector(s)};
 var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
 var db=null,assets=null,downloads=null;
-var trades=[],loaded=false;
+var trades=[],missed=[],loaded=false;
 var editingId=null,existingShots=[],newFiles=[],removedShots=[],pnlTouched=false,saving=false;
 var jOff=0,jAll=false,bOff=0,deleteArm=false;
 
 /* ---------- v1.1: paires, réglages, thème ---------- */
-var APP_VERSION='2.5';
+var APP_VERSION='2.6';
 var FEEDBACK_TO='femforex237@gmail.com';
 var MAXDAY=2;
 var PRESETS={
@@ -756,6 +757,80 @@ function mergeSettings(x){
 function loadS(){try{mergeSettings(JSON.parse(localStorage.getItem('ff-settings')||'null'))}catch(e){}}
 function saveS(){try{localStorage.setItem('ff-settings',JSON.stringify(S))}catch(e){}
   try{var sg=JSON.stringify(SSUB()),old=lsGet('ff-ssig');if(old!=null&&sg!==old){lsSet('ff-ssig',sg);lsSet('ff-supd',String(Date.now()));if(USER)schedSync(2500)}}catch(e){}}
+
+/* ---------- v2.6: opportunités manquées ---------- */
+var MOT={
+fr:{btn:"Opportunité manquée",title:"Opportunité manquée",pair:"Paire",side:"Sens",buy:"Achat",sell:"Vente",date:"Date",time:"Heure",why:"Pourquoi tu n'es pas entrée ?",would:"Qu'est-ce que ça aurait donné ?",win:"Gagné",lose:"Perdu",unk:"Je ne sais pas",r:"R estimé (facultatif)",note:"Ce que tu as vu (facultatif)",shot:"+ Ajouter une capture",save:"Enregistrer",saved:"Opportunité notée",head:"Opportunités manquées",none:"Aucune pour l'instant. Note les trades que tu n'as pas pris : ils t'apprennent autant que les autres.",total:"Notées",wins:"Auraient gagné",loses:"Auraient perdu",byr:"Par raison",del:"Supprimer ?",cost:"Tes hésitations (peur, lenteur) t'auraient rapporté environ",reasons:["Pas de confirmation claire","Peur","Marché lent / hésitation","Vu trop tard","Limite du jour atteinte","Hors de mes heures","Autre"]},
+en:{btn:"Missed opportunity",title:"Missed opportunity",pair:"Pair",side:"Side",buy:"Buy",sell:"Sell",date:"Date",time:"Time",why:"Why didn't you enter?",would:"What would it have given?",win:"Won",lose:"Lost",unk:"Don't know",r:"Estimated R (optional)",note:"What you saw (optional)",shot:"+ Add a screenshot",save:"Save",saved:"Opportunity noted",head:"Missed opportunities",none:"None yet. Log the trades you did not take: they teach as much as the others.",total:"Logged",wins:"Would have won",loses:"Would have lost",byr:"By reason",del:"Delete?",cost:"Your hesitations (fear, slow market) would have earned you about",reasons:["No clear confirmation","Fear","Slow market / hesitation","Saw it too late","Daily limit reached","Outside my hours","Other"]},
+es:{btn:"Oportunidad perdida",title:"Oportunidad perdida",pair:"Par",side:"Sentido",buy:"Compra",sell:"Venta",date:"Fecha",time:"Hora",why:"¿Por qué no entraste?",would:"¿Qué habría dado?",win:"Ganada",lose:"Perdida",unk:"No lo sé",r:"R estimado (opcional)",note:"Lo que viste (opcional)",shot:"+ Añadir captura",save:"Guardar",saved:"Oportunidad anotada",head:"Oportunidades perdidas",none:"Ninguna por ahora. Anota las operaciones que no tomaste: enseñan tanto como las demás.",total:"Anotadas",wins:"Habrían ganado",loses:"Habrían perdido",byr:"Por motivo",del:"¿Eliminar?",cost:"Tus dudas (miedo, mercado lento) te habrían dado unos",reasons:["Sin confirmación clara","Miedo","Mercado lento / duda","Lo vi tarde","Límite diario alcanzado","Fuera de mi horario","Otro"]},
+pt:{btn:"Oportunidade perdida",title:"Oportunidade perdida",pair:"Par",side:"Sentido",buy:"Compra",sell:"Venda",date:"Data",time:"Hora",why:"Porque não entraste?",would:"O que teria dado?",win:"Ganho",lose:"Perda",unk:"Não sei",r:"R estimado (opcional)",note:"O que viste (opcional)",shot:"+ Adicionar captura",save:"Guardar",saved:"Oportunidade registada",head:"Oportunidades perdidas",none:"Nenhuma por agora. Regista os trades que não fizeste: ensinam tanto como os outros.",total:"Registadas",wins:"Teriam ganho",loses:"Teriam perdido",byr:"Por motivo",del:"Apagar?",cost:"As tuas hesitações (medo, mercado lento) teriam rendido cerca de",reasons:["Sem confirmação clara","Medo","Mercado lento / hesitação","Vi tarde demais","Limite diário atingido","Fora do meu horário","Outro"]},
+de:{btn:"Verpasste Chance",title:"Verpasste Chance",pair:"Paar",side:"Richtung",buy:"Kauf",sell:"Verkauf",date:"Datum",time:"Zeit",why:"Warum bist du nicht eingestiegen?",would:"Was hätte es gebracht?",win:"Gewonnen",lose:"Verloren",unk:"Weiß nicht",r:"Geschätztes R (optional)",note:"Was du gesehen hast (optional)",shot:"+ Screenshot hinzufügen",save:"Speichern",saved:"Chance notiert",head:"Verpasste Chancen",none:"Noch keine. Notiere Trades, die du nicht genommen hast: Sie lehren genauso viel.",total:"Notiert",wins:"Hätten gewonnen",loses:"Hätten verloren",byr:"Nach Grund",del:"Löschen?",cost:"Deine Zögerlichkeit (Angst, langsamer Markt) hätte etwa eingebracht:",reasons:["Keine klare Bestätigung","Angst","Langsamer Markt / Zögern","Zu spät gesehen","Tageslimit erreicht","Außerhalb meiner Zeiten","Andere"]},
+it:{btn:"Occasione persa",title:"Occasione persa",pair:"Coppia",side:"Direzione",buy:"Acquisto",sell:"Vendita",date:"Data",time:"Ora",why:"Perché non sei entrata?",would:"Cosa avrebbe dato?",win:"Vinto",lose:"Perso",unk:"Non so",r:"R stimato (facoltativo)",note:"Cosa hai visto (facoltativo)",shot:"+ Aggiungi screenshot",save:"Salva",saved:"Occasione annotata",head:"Occasioni perse",none:"Nessuna per ora. Annota i trade che non hai preso: insegnano quanto gli altri.",total:"Annotate",wins:"Avrebbero vinto",loses:"Avrebbero perso",byr:"Per motivo",del:"Eliminare?",cost:"Le tue esitazioni (paura, mercato lento) avrebbero reso circa",reasons:["Nessuna conferma chiara","Paura","Mercato lento / esitazione","Visto troppo tardi","Limite giornaliero raggiunto","Fuori dai miei orari","Altro"]}
+};
+var MOK=['noconf','fear','slow','late','limit','hours','other'];
+function moT(){return MOT[S.lang]||MOT.fr}
+var moFile=null;
+function openMissed(){
+  var T=moT(),ov=$('#overlay'),now=new Date(),pad2=function(n){return String(n).padStart(2,'0')};
+  var pairs=$('#f-pair')?$('#f-pair').innerHTML:'<option>GOLD</option>';
+  var last=trades.length?trades[0].pair:'';
+  ov.innerHTML='<div class="sheet" role="dialog" aria-label="'+esc(T.title)+'" data-notr><div class="hd"><h3>'+esc(T.title)+'</h3><button class="icon-btn" data-close aria-label="X">&times;</button></div>'+
+   '<label class="field"><span>'+esc(T.pair)+'</span><select id="mo-pair">'+pairs+'</select></label>'+
+   '<div class="field"><span>'+esc(T.side)+'</span><div class="seg" role="radiogroup"><label><input type="radio" name="mosd" value="buy"><span>'+esc(T.buy)+'</span></label><label><input type="radio" name="mosd" value="sell"><span>'+esc(T.sell)+'</span></label></div></div>'+
+   '<div class="row2"><label class="field"><span>'+esc(T.date)+'</span><input type="date" id="mo-date" value="'+now.getFullYear()+'-'+pad2(now.getMonth()+1)+'-'+pad2(now.getDate())+'"></label><label class="field"><span>'+esc(T.time)+'</span><input type="time" id="mo-time" value="'+pad2(now.getHours())+':'+pad2(now.getMinutes())+'"></label></div>'+
+   '<div class="field"><span>'+esc(T.why)+'</span><div class="tgs">'+MOK.map(function(k,i){return '<label><input type="radio" name="mowhy" value="'+k+'"'+(i===0?' checked':'')+'><span>'+esc(T.reasons[i])+'</span></label>'}).join('')+'</div></div>'+
+   '<div class="field"><span>'+esc(T.would)+'</span><div class="seg" role="radiogroup"><label><input type="radio" name="mowd" value="win"><span>'+esc(T.win)+'</span></label><label><input type="radio" name="mowd" value="lose"><span>'+esc(T.lose)+'</span></label><label><input type="radio" name="mowd" value="unk" checked><span>'+esc(T.unk)+'</span></label></div></div>'+
+   '<label class="field"><span>'+esc(T.r)+'</span><input type="text" inputmode="decimal" id="mo-r" maxlength="6" placeholder="2.5"></label>'+
+   '<label class="field"><span>'+esc(T.note)+'</span><textarea id="mo-note" rows="3" maxlength="400"></textarea></label>'+
+   '<label class="btn addbtn"><input type="file" id="mo-file" accept="image/*"><span id="mo-fl">'+esc(T.shot)+'</span></label>'+
+   '<button class="btn primary" id="mo-save" type="button">'+esc(T.save)+'</button></div>';
+  ov.hidden=false;moFile=null;
+  if(last){var sp=$('#mo-pair');for(var i=0;i<sp.options.length;i++)if(sp.options[i].value===last){sp.value=last;break}}
+}
+async function saveMissed(){
+  var T=moT(),side=getRadio('mosd'),btn=$('#mo-save');
+  if(!side){toast(T.side+' ?');return}
+  var date=$('#mo-date').value,time=$('#mo-time').value||'12:00';if(!date){toast(T.date+' ?');return}
+  var rv=num($('#mo-r').value);
+  var d={mo:true,pair:$('#mo-pair').value,side:side,date:date,time:time,why:getRadio('mowhy')||'other',would:getRadio('mowd')||'unk',note:$('#mo-note').value.trim().slice(0,400),shots:[]};
+  if(rv!=null&&isFinite(rv))d.r=Math.round(rv*100)/100;
+  d.ts=new Date(date+'T'+time).getTime();d.upd=Date.now();
+  btn.disabled=true;
+  try{
+    if(moFile){try{d.shots.push(await inlineShot(moFile))}catch(e){}}
+    await db.collection('trades').add(d);
+    closeSheet();schedSync();toast(T.saved);
+  }catch(e){btn.disabled=false;toast('Erreur')}
+}
+function coMissed(){
+  var by={},w=0,l=0,rs=0;
+  missed.forEach(function(m){by[m.why]=(by[m.why]||0)+1;if(m.would==='win'){w++;if(m.r!=null)rs+=m.r}else if(m.would==='lose')l++});
+  return {total:missed.length,wouldHaveWon:w,wouldHaveLost:l,sumRofWouldWin:+rs.toFixed(2),byReason:by,last10:missed.slice(0,10).map(function(m){return {d:m.date,t:m.time,p:m.pair,s:m.side,why:m.why,would:m.would,r:m.r,note:m.note?String(m.note).slice(0,150):undefined}})};
+}
+function renderMissed(){
+  var out=$('#mo-out');if(!out)return;
+  var T=moT(),h='<div class="block"><h2>'+esc(T.head)+'</h2>';
+  if(!missed.length){out.innerHTML=h+'<p class="hint">'+esc(T.none)+'</p></div>';return}
+  var w=0,l=0,rs=0,rsFear=0,by={};
+  missed.forEach(function(m){by[m.why]=by[m.why]||{n:0,w:0};by[m.why].n++;if(m.would==='win'){w++;by[m.why].w++;if(m.r!=null){rs+=m.r;if(m.why==='fear'||m.why==='slow')rsFear+=m.r}}else if(m.would==='lose')l++});
+  h+='<div class="ana-kv"><div><span>'+esc(T.total)+'</span><b>'+missed.length+'</b></div><div><span>'+esc(T.wins)+'</span><b class="gain">'+w+'</b></div><div><span>'+esc(T.loses)+'</span><b class="loss">'+l+'</b></div><div><span>R</span><b class="'+(rs>0?'gain':'')+'">'+(rs?sgn(rs,2,' R'):'–')+'</b></div></div>';
+  h+='<div class="lbl-h" style="margin:12px 0 6px">'+esc(T.byr)+'</div><ul class="todo">'+MOK.filter(function(k){return by[k]}).map(function(k){return '<li><b>'+esc(T.reasons[MOK.indexOf(k)])+'</b> · '+by[k].n+' ('+by[k].w+' ✓)</li>'}).join('')+'</ul>';
+  if(rsFear>0)h+='<p class="hint">'+esc(T.cost)+' <b>'+sgn(rsFear,2,' R')+'</b>.</p>';
+  h+='<div class="lbl-h" style="margin:12px 0 6px">'+esc(T.head)+'</div>'+missed.slice(0,15).map(function(m){
+    var rn=T.reasons[Math.max(0,MOK.indexOf(m.why))],wd=m.would==='win'?T.win:m.would==='lose'?T.lose:T.unk;
+    return '<div class="note" style="margin-bottom:8px;display:flex;gap:8px;justify-content:space-between;align-items:flex-start"><div><b>'+esc(m.pair)+' · '+(m.side==='buy'?esc(T.buy):esc(T.sell))+'</b> · '+esc(m.date)+' '+esc(m.time||'')+'<br><small>'+esc(rn)+' · '+esc(wd)+(m.r!=null?' · '+sgn(m.r,2,' R'):'')+'</small>'+(m.note?'<br><small>'+esc(m.note)+'</small>':'')+'</div><button class="icon-btn" data-model="'+esc(m.id)+'" aria-label="X">&times;</button></div>'}).join('');
+  out.innerHTML=h+'</div>';
+}
+document.addEventListener('click',function(e){
+  var t=e.target&&e.target.closest?e.target.closest('[data-mo],#mo-save,[data-model]'):null;if(!t)return;
+  if(t.getAttribute('data-mo')==='open'){openMissed();return}
+  if(t.id==='mo-save'){saveMissed();return}
+  var id=t.getAttribute('data-model');
+  if(id&&confirm(moT().del)){(async function(){try{await db.collection('trades').doc(id).delete();addTomb(id);schedSync()}catch(er){}})()}
+});
+document.addEventListener('change',function(e){
+  var t=e.target;if(t&&t.id==='mo-file'&&t.files&&t.files[0]){moFile=t.files[0];var l=$('#mo-fl');if(l)l.textContent='✓ '+moFile.name.slice(0,24)}
+});
 
 /* ---------- v2.5: apparence (police, taille, couleurs, fond animé, nom de l'assistante) ---------- */
 var LKF={def:['Archivo',null,''],pop:['Poppins','Poppins:wght@400;600;700','sans-serif'],mon:['Montserrat','Montserrat:wght@400;600;700','sans-serif'],nun:['Nunito','Nunito:wght@400;600;700','sans-serif'],spa:['Space Grotesk','Space+Grotesk:wght@400;600;700','sans-serif'],pla:['Playfair Display','Playfair+Display:wght@400;600;700','serif'],lor:['Lora','Lora:wght@400;600;700','serif'],rob:['Roboto Mono','Roboto+Mono:wght@400;600;700','monospace']};
@@ -1390,7 +1465,7 @@ function equitySvg(list){
   return '<div class="block"><h2>Évolution de ton résultat ($)</h2>'+svg+'<p class="hint">Chaque point est un trade, dans l\'ordre. Quand la courbe monte, ton résultat monte.</p></div>';
 }
 function renderAna(){
-  var out=$('#ana-out');if(!out)return;
+  var out=$('#ana-out');if(!out)return;try{renderMissed()}catch(e){}
   var list=anaList();
   if(!list.length){out.innerHTML='<div class="empty"><b>Aucun trade sur cette période.</b></div>';return}
   var s=stats(list),dec=list.filter(function(t){return t.pnl!=null});
@@ -1731,6 +1806,7 @@ function renderHome(){
   h+='<div class="hero"><div class="hello">'+greet()+'</div><div class="tag-line">'+esc(d.charAt(0).toUpperCase()+d.slice(1))+'</div></div>';
   h+='<div class="block today'+(MX&&nT>=MAXDAY?' full':'')+'"><div class="big">'+nT+(MX?'<small>/'+MAXDAY+'</small>':'')+'</div><div class="msg"><b>'+msg[0]+'</b>'+msg[1]+'</div></div>';
   h+='<button class="btn primary" data-tab="saisie" type="button">+ Nouveau trade</button>';
+  h+='<button class="btn" data-mo="open" type="button" data-notr>'+esc(moT().btn)+'</button>';
   if(!N){
     h+='<div class="block welcome"><h2>Bienvenue</h2><ol class="steps-list">'+
       '<li><span>Après chaque trade, ouvre <b>Saisie</b> et remplis la fiche.</span></li>'+
@@ -2039,6 +2115,7 @@ function coData(withNotes){
     withNews:coGroup(all,function(t){return t.news?(t.news.had?'news':'no news'):null}),
     rulesFollowed:coGroup(all,function(t){return t.rules==null?null:(t.rules?'yes':'no')}),
     emotionTags:coGroup((function(){var r=[];all.forEach(function(t){(t.tags||[]).forEach(function(g){r.push({tg:g,pnl:t.pnl,r:t.r})})});return r})(),function(x){return x.tg}),
+    missedOpportunities:coMissed(),
     lastTrades:all.slice(-120).map(function(t){var o={d:t.date,t:t.time,p:t.pair,s:t.side,pnl:t.pnl,r:t.r,steps:t.steps?t.steps.filter(Boolean).length:null,rules:t.rules,stress:t.stress};if(t.trend)o.trend=t.trend.with;if(t.tags&&t.tags.length)o.tags=t.tags;if(withNotes&&t.note)o.note=String(t.note).slice(0,200);return o})};
   var nm=S.cn||'Coach';
   return "[Le trader t'a donné un prénom : tu t'appelles "+nm+". Présente-toi sous ce nom, sans le commenter.]\n"+JSON.stringify(d);
@@ -2123,9 +2200,9 @@ async function syncNow(manual){
     if(!tok||!uid){setSY('auth');return}
     var own=lsGet('ff-owner');
     if(own&&own!==uid){
-      if(lsGet('ff-dirty')==='1'&&trades.length){setSY('pause');return}
-      for(var q=0;q<trades.length;q++)await db.collection('trades').doc(trades[q].id).delete();
-      trades=[];lsSet('ff-del',null);lsSet('ff-supd',null);lsSet('ff-ssig',null);
+      if(lsGet('ff-dirty')==='1'&&(trades.length||missed.length)){setSY('pause');return}
+      var allq=trades.concat(missed);for(var q=0;q<allq.length;q++)await db.collection('trades').doc(allq[q].id).delete();
+      trades=[];missed=[];lsSet('ff-del',null);lsSet('ff-supd',null);lsSet('ff-ssig',null);
     }
     lsSet('ff-owner',uid);
     var rows=await rest('/rest/v1/ff_data?select=data&user_id=eq.'+encodeURIComponent(uid),{token:tok});
@@ -2137,7 +2214,7 @@ async function syncNow(manual){
     for(k in del)if(now-del[k]>90*864e5)delete del[k];
     var changed=!cloud;
     for(k in del)if(!(k in cD))changed=true;
-    var local={};trades.forEach(function(t){local[t.id]=t});
+    var local={};trades.forEach(function(t){local[t.id]=t});missed.forEach(function(t){local[t.id]=t});
     var ids={};Object.keys(cT).forEach(function(i){ids[i]=1});Object.keys(local).forEach(function(i){ids[i]=1});
     var out={};
     async function saveLocal(id,o){var c=JSON.parse(JSON.stringify(o));delete c.id;await db.collection('trades').doc(id).set(c)}
@@ -2484,7 +2561,8 @@ trAll();
   renderShots();
   if(!db){$('#banner').textContent='Les enregistrements ne sont pas disponibles dans cette vue. Ouvre le journal dans Claude.';$('#banner').hidden=false;loaded=true;renderAll();return}
   db.collection('trades').onSnapshot(function(snap){
-    trades=snap.docs.map(function(d){var o=d.data();o.id=d.id;return o}).sort(function(a,b){return (b.ts||0)-(a.ts||0)});
+    var allD=snap.docs.map(function(d){var o=d.data();o.id=d.id;return o}).sort(function(a,b){return (b.ts||0)-(a.ts||0)});
+    trades=allD.filter(function(t){return !t.mo});missed=allD.filter(function(t){return t.mo});
     var first=!loaded;loaded=true;renderAll();
     if(first&&USER)syncNow();else if(pendingSync&&USER){pendingSync=false;syncNow()}
   },function(){$('#banner').textContent='Lecture du journal impossible pour le moment. Recharge la page.';$('#banner').hidden=false;loaded=true;renderAll()});
