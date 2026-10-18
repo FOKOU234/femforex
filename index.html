@@ -147,6 +147,22 @@ nav.tabs button.cxn[aria-selected=true] .sp{fill:var(--accent)}
 .cxd .danger{border:1px solid var(--loss);color:var(--loss);background:transparent;border-radius:12px;padding:12px;font:inherit;font-weight:600;cursor:pointer}
 .cxd .note{font-size:12.5px;color:var(--muted);line-height:1.5}
 .fcb{display:inline-block;min-width:20px;padding:1px 7px;margin-left:6px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:700}
+
+.btn-mo,.btn-fc{display:flex;align-items:center;justify-content:center;gap:10px;font-weight:700;border-width:1px}
+.btn-mo svg,.btn-fc svg{width:22px;height:22px;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.btn.btn-mo{border:1px solid color-mix(in srgb,#FF8A3D 65%,transparent)!important;background:linear-gradient(135deg,color-mix(in srgb,#FF8A3D 26%,var(--surface)),color-mix(in srgb,#FFC15A 14%,var(--surface)))!important}
+.btn-mo svg{stroke:#FF8A3D}
+.btn.btn-fc{border:1px solid color-mix(in srgb,#7C6BFF 65%,transparent)!important;background:linear-gradient(135deg,color-mix(in srgb,#7C6BFF 28%,var(--surface)),color-mix(in srgb,#4DA3FF 16%,var(--surface)))!important}
+.btn-fc svg{stroke:#8E7DFF}
+.btn-fc .fcb{background:#7C6BFF;color:#fff}
+nav.tabs button.cxn,nav.tabs button.cxn[aria-selected=true]{background:linear-gradient(135deg,#7C6BFF,#4DA3FF);color:#fff;box-shadow:0 6px 18px -6px #5B7CFF}
+nav.tabs button.cxn svg,nav.tabs button.cxn[aria-selected=true] svg{stroke:#fff}
+nav.tabs button.cxn .sp,nav.tabs button.cxn[aria-selected=true] .sp{fill:#fff}
+nav.tabs button.cxn:not([aria-selected=true]){opacity:.92}
+nav.tabs button.cxn[aria-selected=true]{box-shadow:0 0 0 2px var(--surface),0 0 0 4px #7C6BFF,0 8px 20px -6px #5B7CFF}
+#cx-send{background:linear-gradient(135deg,#7C6BFF,#4DA3FF)!important;color:#fff!important;box-shadow:0 6px 18px -6px #5B7CFF!important}
+.cx-m.u .b{background:linear-gradient(135deg,#7C6BFF,#4DA3FF)!important;color:#fff!important}
+.cx-chip.on{border-color:#7C6BFF!important;color:var(--ink)!important;background:color-mix(in srgb,#7C6BFF 18%,transparent)!important}
 </style><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script></head><body>
 <script>
 (function(){
@@ -807,7 +823,7 @@ var editingId=null,existingShots=[],newFiles=[],removedShots=[],pnlTouched=false
 var jOff=0,jAll=false,bOff=0,deleteArm=false;
 
 /* ---------- v1.1: paires, réglages, thème ---------- */
-var APP_VERSION='3.3';
+var APP_VERSION='3.5';
 var FEEDBACK_TO='femforex237@gmail.com';
 var MAXDAY=2;
 var PRESETS={
@@ -2016,8 +2032,8 @@ function renderHome(){
   h+='<div class="hero"><div class="hello">'+greet()+'</div><div class="tag-line">'+esc(d.charAt(0).toUpperCase()+d.slice(1))+'</div></div>';
   h+='<div class="block today'+(MX&&nT>=MAXDAY?' full':'')+'"><div class="big">'+nT+(MX?'<small>/'+MAXDAY+'</small>':'')+'</div><div class="msg"><b>'+msg[0]+'</b>'+msg[1]+'</div></div>';
   h+='<button class="btn primary" data-tab="saisie" type="button">+ Nouveau trade</button>';
-  h+='<button class="btn" data-mo="open" type="button" data-notr>'+esc(moT().btn)+'</button>';
-  h+='<button class="btn" data-fc="list" type="button" data-notr>'+esc(fcT().btn)+(fcs.filter(function(f){return !f.done}).length?' <span class="fcb">'+fcs.filter(function(f){return !f.done}).length+'</span>':'')+'</button>';
+  h+='<button class="btn btn-mo" data-mo="open" type="button" data-notr><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>'+esc(moT().btn)+'</button>';
+  h+='<button class="btn btn-fc" data-fc="list" type="button" data-notr><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4"/></svg>'+esc(fcT().btn)+(fcs.filter(function(f){return !f.done}).length?' <span class="fcb">'+fcs.filter(function(f){return !f.done}).length+'</span>':'')+'</button>';
   if(!N){
     h+='<div class="block welcome"><h2>Bienvenue</h2><ol class="steps-list">'+
       '<li><span>Après chaque trade, ouvre <b>Saisie</b> et remplis la fiche.</span></li>'+
