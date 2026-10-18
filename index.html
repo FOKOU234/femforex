@@ -259,6 +259,59 @@ details.rk>summary::before{content:"";width:34px;height:34px;margin-right:12px;b
 .addbtn::before{content:"";width:24px;height:24px;flex:none;background:#5CC8FF;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 8.5A2.5 2.5 0 0 1 6.5 6H8l1.3-2h5.4L16 6h1.5A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='12.5' r='3.2' fill='none' stroke='black' stroke-width='1.8'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 8.5A2.5 2.5 0 0 1 6.5 6H8l1.3-2h5.4L16 6h1.5A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z' fill='none' stroke='black' stroke-width='1.8' stroke-linejoin='round'/%3E%3Ccircle cx='12' cy='12.5' r='3.2' fill='none' stroke='black' stroke-width='1.8'/%3E%3C/svg%3E") center/contain no-repeat}
 .tgs input:checked+span{font-weight:700}
 .block>h2::before{animation:none}
+
+/* ===== v4.3 ===== */
+nav.tabs button{--t:#E2B34A;background:none!important}
+nav.tabs button[data-tab=saisie]{--t:#2FD39B}nav.tabs button[data-tab=journal]{--t:#4DB8FF}nav.tabs button[data-tab=bilan]{--t:#A58BFF}
+nav.tabs button:not(.cxn){color:var(--muted)!important}
+nav.tabs button:not(.cxn) svg{width:42px;height:32px;padding:5px 10px;box-sizing:border-box;border-radius:13px;color:color-mix(in srgb,var(--t) 55%,#fff);stroke:currentColor;background:linear-gradient(135deg,color-mix(in srgb,var(--t) 30%,transparent),color-mix(in srgb,var(--t) 10%,transparent));border:1px solid color-mix(in srgb,var(--t) 38%,transparent);box-shadow:0 0 16px -8px var(--t);filter:none;transform:none}
+nav.tabs button:not(.cxn) svg .ac{fill:currentColor;fill-opacity:.35;stroke:none}
+nav.tabs button[aria-selected=true]:not(.cxn){color:var(--t)!important;background:none!important}
+nav.tabs button[aria-selected=true]:not(.cxn) svg{color:#fff;background:linear-gradient(135deg,color-mix(in srgb,var(--t) 95%,#fff 5%),color-mix(in srgb,var(--t) 65%,#000));border-color:color-mix(in srgb,var(--t) 70%,#fff);box-shadow:0 8px 20px -8px var(--t),inset 0 1px 0 #fff6;filter:none}
+nav.tabs button[aria-selected=true]:not(.cxn) svg .ac{fill-opacity:.55}
+nav.tabs button[aria-selected=true]:not(.cxn)::after{display:none}
+body.on-set nav.tabs{display:none!important}
+body.on-set{padding-bottom:40px}
+.backh{display:inline-flex;align-items:center;gap:6px;margin:8px 0 2px;padding:8px 14px 8px 8px;border-radius:14px;border:1px solid color-mix(in srgb,var(--line) 80%,#7C9CFF 20%);background:color-mix(in srgb,var(--surface) 70%,transparent);color:var(--ink);font-weight:700}
+.backh svg{width:20px;height:20px;fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.badge{background:color-mix(in srgb,var(--ink) 12%,transparent)!important;color:var(--ink)!important;border:1px solid color-mix(in srgb,var(--ink) 22%,transparent)}
+.about{display:flex;flex-direction:column;gap:10px;color:var(--ink)}
+.ab-hero{display:flex;align-items:center;gap:14px}
+.ab-hero img{border-radius:16px;box-shadow:0 0 24px -6px var(--accent)}
+.ab-n{display:block;font-size:20px;letter-spacing:-.01em}
+.ab-v{display:inline-block;margin-top:2px;padding:2px 10px;border-radius:999px;font-size:12px;font-weight:700;background:color-mix(in srgb,var(--accent) 18%,transparent);color:var(--accent)}
+.ab-tag{margin:0;font-size:14.5px;color:var(--muted);line-height:1.5}
+.ab-h{margin:10px 0 0;font-size:14.5px;font-weight:700}
+.ab-p{margin:0;font-size:13px;color:var(--muted);line-height:1.55}
+.ab-s{font-size:12px;opacity:.85}
+.ab-grid{display:flex;flex-wrap:wrap;gap:8px}
+.ab-grid span{padding:7px 12px;border-radius:999px;font-size:12.5px;font-weight:600;border:1px solid color-mix(in srgb,var(--line) 70%,#7C9CFF 30%);background:linear-gradient(180deg,color-mix(in srgb,var(--field) 94%,#fff 6%),var(--field))}
+.ab-links{display:flex;flex-direction:column;gap:8px}
+.ab-links a{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-radius:16px;text-decoration:none;color:var(--ink);border:1px solid color-mix(in srgb,var(--line) 70%,#7C9CFF 30%);background:linear-gradient(180deg,color-mix(in srgb,var(--field) 94%,#fff 6%),var(--field))}
+.ab-links .ab-d{display:flex;flex-direction:column;min-width:0}
+.ab-links b{font-size:14px}
+.ab-links small{color:var(--muted);font-size:12px}
+.ab-links em{font-style:normal;font-size:12px;font-weight:700;color:#5CC8FF;padding:5px 10px;border-radius:999px;border:1px solid color-mix(in srgb,#5CC8FF 45%,transparent);flex:none}
+.ab-ft{text-align:center;margin-top:6px}
+
+/* ===== v4.4 : Journal, Bilan, À propos ===== */
+#about .ab-n,#about .ab-h,#about .ab-links b,.about .ab-tag{color:var(--ink)!important}
+#about .ab-tag,#about .ab-p{color:var(--muted)!important}
+.trow{position:relative;overflow:hidden;border-radius:18px!important;border:1px solid color-mix(in srgb,var(--line) 75%,#7C9CFF 25%)!important;background:linear-gradient(180deg,color-mix(in srgb,var(--surface) 92%,#fff 8%),var(--surface))!important;box-shadow:0 12px 26px -20px #000;transition:transform .15s}
+.trow:active{transform:scale(.985)}
+.trow::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:var(--muted)}
+.trow:has(.res .gain)::before{background:linear-gradient(180deg,#46D6A0,#12A072);box-shadow:0 0 14px #20C997}
+.trow:has(.res .loss)::before{background:linear-gradient(180deg,#FF8E80,#E0463B);box-shadow:0 0 14px #FF6B5E}
+.trow .res{font-size:17px}
+.dayhead{font-size:12px;letter-spacing:.08em;padding-top:10px}
+#b-now{background:linear-gradient(135deg,color-mix(in srgb,#7C6BFF 30%,var(--surface)),color-mix(in srgb,#3FA7FF 20%,var(--surface)))!important;color:var(--ink)!important;border:1px solid color-mix(in srgb,#7C6BFF 55%,transparent)!important;box-shadow:0 10px 26px -14px #5B7CFF!important}
+table.cmp th{font-size:11px;letter-spacing:.08em;color:var(--muted)}
+table.cmp td:first-child{color:var(--muted)}
+.tablewrap{border-radius:16px}
+.seg.top,#v-bilan>.seg{border-radius:18px}
+.ana-kv>div{border-radius:16px;border:1px solid color-mix(in srgb,var(--line) 75%,#7C9CFF 25%);background:linear-gradient(180deg,color-mix(in srgb,var(--field) 94%,#fff 6%),var(--field))}
+.ana-kv b{font-family:var(--mono)}
+.chips .chip,.chip{border-radius:999px}
 </style><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script></head><body>
 <script>
 (function(){
@@ -807,10 +860,8 @@ html.gated body{overflow:hidden}
 
   <!-- 4. RÉGLAGES -->
   <section data-view="reglages" id="v-reglages" hidden>
+    <button type="button" class="backh" data-tab="accueil"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Retour</span></button>
     <div class="grp-h">Mon espace</div>
-    <details class="block acc" id="acc-account"><summary><span class="si"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span><span class="st"><b>Mon compte</b><small>E-mail et sauvegarde en ligne</small></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="accb">
-      <div id="acc"></div>
-    </div></details>
     <details class="block acc" id="acc-prefs"><summary><span class="si"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h9M17 8h3M4 16h3M11 16h9"/><circle cx="15" cy="8" r="2"/><circle cx="9" cy="16" r="2"/></svg></span><span class="st"><b>Préférences</b><small>Prénom, langue et apparence</small></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="accb">
       <h3 class="sub">Profil</h3>
       <label class="field"><span>Ton prénom (facultatif)</span><input type="text" id="s-name" maxlength="30" placeholder="Ex: Fem" autocomplete="given-name"></label>
@@ -858,8 +909,11 @@ html.gated body{overflow:hidden}
         <button class="btn" id="share-app" type="button">Inviter un trader</button>
       </div>
     </div></details>
+    <details class="block acc" id="acc-account"><summary><span class="si"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span><span class="st"><b>Mon compte</b><small>E-mail et sauvegarde en ligne</small></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="accb">
+      <div id="acc"></div>
+    </div></details>
     <details class="block acc" id="acc-about"><summary><span class="si"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg></span><span class="st"><b>À propos</b><small>Version et informations</small></span><svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="accb">
-      <p class="about" id="about"></p>
+      <div class="about" id="about" data-notr></div>
     </div></details>
     <div class="exitzone"><div class="grp-h">Sortie</div>
       <button class="btn" id="logout" type="button">Se déconnecter</button>
@@ -919,7 +973,7 @@ var editingId=null,existingShots=[],newFiles=[],removedShots=[],pnlTouched=false
 var jOff=0,jAll=false,bOff=0,deleteArm=false;
 
 /* ---------- v1.1: paires, réglages, thème ---------- */
-var APP_VERSION='4.2';
+var APP_VERSION='4.4';
 var FEEDBACK_TO='femforex237@gmail.com';
 var MAXDAY=2;
 var PRESETS={
@@ -2182,7 +2236,7 @@ function renderSettings(){
   stFill();fillLangSelect($('#s-lang'));renderAccount();
   setRadio('theme',S.theme);$('#s-name').value=S.name;try{renderLookPanel()}catch(e){}
   renderPairList();
-  $('#about').innerHTML='<b>Fem Forex</b> · version '+APP_VERSION+'<br>Un journal de trading pour noter, comprendre et corriger tes trades. Tes trades et tes captures sont sauvegardés sur ton téléphone et dans ton compte en ligne.<br>Cet outil ne donne pas de conseil financier. Le trading comporte un risque de perte.';
+  try{renderAbout()}catch(e){}
 }
 function openFeedback(){
   var ov=$('#overlay');
@@ -2562,6 +2616,21 @@ document.addEventListener('input',function(e){
 });
 document.addEventListener('keydown',function(e){if(e.target&&e.target.id==='cx-text'&&e.key==='Enter'&&(e.ctrlKey||e.metaKey)){e.preventDefault();coSend(e.target.value)}});
 
+
+/* ---------- v4.3 : À propos développé ---------- */
+var ABT={
+fr:{tag:"Le journal de trading pensé pour ta méthode : liquidité et order blocks.",ft:"Ce que tu peux faire",f:["Journal avec captures","Calculateur de risque et de lot","Analyses par heure et par session","Chat d'analyse (IA)","Prévision d'ouverture","Opportunités manquées","Import MetaTrader","Sauvegarde en ligne","6 langues","Apparence personnalisable"],rs:"Sites utiles",rsd:"Les outils que les traders utilisent chaque jour. Chaque lien s'ouvre dans ton navigateur.",open:"Ouvrir",links:[["TradingView","Graphiques et calendrier économique","https://www.tradingview.com/"],["Investing.com","Calendrier économique et actualités","https://www.investing.com/economic-calendar/"],["Forex Factory","Calendrier des annonces","https://www.forexfactory.com/calendar"],["XM","Courtier, compte démo","https://www.xm.com/"],["MetaTrader 5","Plateforme de trading","https://www.metatrader5.com/"],["BabyPips","Apprendre le forex, gratuit","https://www.babypips.com/"]],aff:"Fem Forex n'est affilié à aucun de ces sites. Leurs noms et logos appartiennent à leurs propriétaires.",pv:"Confidentialité",pvt:"Tes trades restent sur ton téléphone et dans ton compte en ligne. Quand tu utilises le Chat, tes statistiques sont envoyées au service d'IA pour répondre, mais pas tes captures d'écran.",wa:"À savoir",wat:"Fem Forex est un outil d'apprentissage. Ce n'est pas un conseil financier. Le trading comporte un risque de perte, surtout avec de l'argent réel.",ver:"Version",mk:"Conçu au Cameroun"},
+en:{tag:"The trading journal built around your method: liquidity and order blocks.",ft:"What you can do",f:["Journal with screenshots","Risk and lot calculator","Analysis by hour and session","Analysis chat (AI)","Opening forecast","Missed opportunities","MetaTrader import","Online backup","6 languages","Custom appearance"],rs:"Useful sites",rsd:"Tools traders use every day. Each link opens in your browser.",open:"Open",links:[["TradingView","Charts and economic calendar","https://www.tradingview.com/"],["Investing.com","Economic calendar and news","https://www.investing.com/economic-calendar/"],["Forex Factory","Announcement calendar","https://www.forexfactory.com/calendar"],["XM","Broker, demo account","https://www.xm.com/"],["MetaTrader 5","Trading platform","https://www.metatrader5.com/"],["BabyPips","Learn forex, free","https://www.babypips.com/"]],aff:"Fem Forex is not affiliated with any of these sites. Their names and logos belong to their owners.",pv:"Privacy",pvt:"Your trades stay on your phone and in your online account. When you use the Chat, your statistics are sent to the AI service to answer, but never your screenshots.",wa:"Good to know",wat:"Fem Forex is a learning tool. It is not financial advice. Trading carries a risk of loss, especially with real money.",ver:"Version",mk:"Made in Cameroon"}
+};
+function renderAbout(){
+  var T=ABT[S.lang]||ABT.fr,lg=$('#logo'),src=lg&&lg.getAttribute('src')||'';
+  var h='<div class="ab-hero">'+(src?'<img src="'+esc(src)+'" alt="" width="56" height="56">':'')+'<div><b class="ab-n">Fem Forex</b><span class="ab-v">'+esc(T.ver)+' '+esc(APP_VERSION)+'</span></div></div><p class="ab-tag">'+esc(T.tag)+'</p>';
+  h+='<h4 class="ab-h">'+esc(T.ft)+'</h4><div class="ab-grid">'+T.f.map(function(x){return '<span>'+esc(x)+'</span>'}).join('')+'</div>';
+  h+='<h4 class="ab-h">'+esc(T.rs)+'</h4><p class="ab-p">'+esc(T.rsd)+'</p><div class="ab-links">'+T.links.map(function(l){return '<a href="'+esc(l[2])+'" target="_blank" rel="noopener noreferrer"><span class="ab-d"><b>'+esc(l[0])+'</b><small>'+esc(l[1])+'</small></span><em>'+esc(T.open)+'</em></a>'}).join('')+'</div><p class="ab-p ab-s">'+esc(T.aff)+'</p>';
+  h+='<h4 class="ab-h">'+esc(T.pv)+'</h4><p class="ab-p">'+esc(T.pvt)+'</p><h4 class="ab-h">'+esc(T.wa)+'</h4><p class="ab-p">'+esc(T.wat)+'</p><p class="ab-p ab-s ab-ft">© 2026 Fem Forex · '+esc(T.mk)+'</p>';
+  $('#about').innerHTML=h;
+}
+
 /* ---------- v1.6: sauvegarde en ligne (Supabase, table ff_data) ---------- */
 var SY={st:'idle',at:0,n:null,code:'',shot:'ok'},syncing=false,syncAgain=false,syncT=0,pendingSync=false;
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
@@ -2886,7 +2955,7 @@ function showTab(name){
   $$('section[data-view]').forEach(function(s){s.hidden=s.dataset.view!==name});
   $$('nav.tabs button').forEach(function(b){b.setAttribute('aria-selected',b.dataset.tab===name?'true':'false')});
   try{localStorage.setItem('jt-tab',name)}catch(e){}
-  window.scrollTo(0,0);document.body.classList.toggle('coach-on',name==='coach');if(name==='reglages')renderSettings();if(name==='coach'){try{coInit()}catch(e){}}renderAll();
+  window.scrollTo(0,0);document.body.classList.toggle('coach-on',name==='coach');document.body.classList.toggle('on-set',name==='reglages');if(name==='reglages')renderSettings();if(name==='coach'){try{coInit()}catch(e){}}renderAll();
 }
 function renderDay(){
   var today=ymd(new Date()),n=trades.filter(function(t){return t.date===today}).length;
