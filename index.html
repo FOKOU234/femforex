@@ -146,6 +146,7 @@ nav.tabs button.cxn[aria-selected=true] .sp{fill:var(--accent)}
 .cxd .sg button.on{border-color:var(--accent);background:var(--accent-soft)}
 .cxd .danger{border:1px solid var(--loss);color:var(--loss);background:transparent;border-radius:12px;padding:12px;font:inherit;font-weight:600;cursor:pointer}
 .cxd .note{font-size:12.5px;color:var(--muted);line-height:1.5}
+.fcb{display:inline-block;min-width:20px;padding:1px 7px;margin-left:6px;border-radius:999px;background:var(--accent);color:var(--on-accent);font-size:12px;font-weight:700}
 </style><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script></head><body>
 <script>
 (function(){
@@ -801,12 +802,12 @@ var STEPS=['Niveau de liquidité repéré (haut ou bas évident)','Le prix a bal
 var $=function(s){return document.querySelector(s)};
 var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
 var db=null,assets=null,downloads=null;
-var trades=[],missed=[],loaded=false;
+var trades=[],missed=[],fcs=[],loaded=false;
 var editingId=null,existingShots=[],newFiles=[],removedShots=[],pnlTouched=false,saving=false;
 var jOff=0,jAll=false,bOff=0,deleteArm=false;
 
 /* ---------- v1.1: paires, réglages, thème ---------- */
-var APP_VERSION='3.0';
+var APP_VERSION='3.3';
 var FEEDBACK_TO='femforex237@gmail.com';
 var MAXDAY=2;
 var PRESETS={
@@ -939,6 +940,83 @@ document.addEventListener('click',function(e){
 document.addEventListener('change',function(e){
   var t=e.target;if(t&&t.id==='mo-file'&&t.files&&t.files[0]){moFile=t.files[0];var l=$('#mo-fl');if(l)l.textContent='✓ '+moFile.name.slice(0,24)}
 });
+
+
+/* ---------- v3.3: Prévision d'ouverture (avant / après) ---------- */
+var FCL={
+fr:{btn:"Prévision d'ouverture",title:"Prévisions d'ouverture",new_:"+ Nouvelle prévision",none:"Aucune prévision pour l'instant. Note ce que tu penses avant l'ouverture, puis reviens comparer.",pair:"Paire",date:"Ouverture le",lv:"Niveaux clés (zones, OB)",lvp:"Ex : 4200 résistance OB · 4178 · 4140 · 4080",sc:"Scénario",scp:"Ce que tu penses qu'il va se passer…",pc:"%",news:"Actualités du week-end",newsp:"Ce que tu as vu (facultatif)",shot:"+ Ajouter une capture",save:"Enregistrer",saved:"Prévision enregistrée",pend:"À comparer",done:"Comparée",fill:"Comparer avec ce qui s'est passé",edit:"Modifier",del:"Supprimer cette prévision ?",which:"Lequel s'est produit ?",nothing:"Aucun",part:"En partie",did:"Ce que le marché a fait",didp:"Où le prix est allé, à quelle heure…",les:"Ce que j'apprends",lesp:"Ce que j'ai bien lu, ce que j'ai raté…",news2:"Actualités qui ont bougé le marché",stat:"Prévisions comparées",hit:"Justes",pt:"En partie",miss:"Ratées",back:"Retour",res:"Résultat",s:"Scénario",chk:"Compare"},
+en:{btn:"Opening forecast",title:"Opening forecasts",new_:"+ New forecast",none:"No forecast yet. Write what you expect before the open, then come back and compare.",pair:"Pair",date:"Opening on",lv:"Key levels (zones, OB)",lvp:"E.g. 4200 OB resistance · 4178 · 4140 · 4080",sc:"Scenario",scp:"What you think will happen…",pc:"%",news:"Weekend news",newsp:"What you saw (optional)",shot:"+ Add a screenshot",save:"Save",saved:"Forecast saved",pend:"To compare",done:"Compared",fill:"Compare with what happened",edit:"Edit",del:"Delete this forecast?",which:"Which one happened?",nothing:"None",part:"Partly",did:"What the market did",didp:"Where price went, at what time…",les:"What I learn",lesp:"What I read right, what I missed…",news2:"News that moved the market",stat:"Forecasts compared",hit:"Right",pt:"Partly",miss:"Wrong",back:"Back",res:"Result",s:"Scenario",chk:"Compare"}
+};
+function fcT(){return FCL[S.lang]||FCL.fr}
+function coFc(){return fcs.slice(0,8).map(function(f){return {opening:f.date,pair:f.pair,levels:f.lv||undefined,scenarios:(f.sc||[]).map(function(x){return {text:String(x.t||'').slice(0,160),prob:x.p}}),weekendNews:f.news?String(f.news).slice(0,200):undefined,compared:!!f.done,result:f.done?(f.hit>=0?'scenario '+(f.hit+1)+' happened':f.hit===-2?'partly':'none happened'):undefined,marketDid:f.did?String(f.did).slice(0,240):undefined,lesson:f.les?String(f.les).slice(0,200):undefined}})}
+function fcNextOpen(){var d=new Date(),w=d.getDay();if(w===6)d.setDate(d.getDate()+2);else if(w===0)d.setDate(d.getDate()+1);var p=function(n){return String(n).padStart(2,'0')};return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())}
+var fcShot=null;
+function fcList(){
+  var T=fcT(),ov=$('#overlay'),dn=fcs.filter(function(f){return f.done}),h0=dn.filter(function(f){return f.hit>=0}).length,p0=dn.filter(function(f){return f.hit===-2}).length;
+  var h='<div class="sheet" data-notr role="dialog"><div class="hd"><h3>'+esc(T.title)+'</h3><button class="icon-btn" data-close aria-label="X">&times;</button></div><button class="btn primary" data-fc="new" type="button">'+esc(T.new_)+'</button>';
+  if(dn.length)h+='<div class="ana-kv" style="margin:10px 0"><div><span>'+esc(T.stat)+'</span><b>'+dn.length+'</b></div><div><span>'+esc(T.hit)+'</span><b class="gain">'+h0+'</b></div><div><span>'+esc(T.pt)+'</span><b>'+p0+'</b></div><div><span>'+esc(T.miss)+'</span><b class="loss">'+(dn.length-h0-p0)+'</b></div></div>';
+  if(!fcs.length)h+='<p class="hint">'+esc(T.none)+'</p>';
+  h+=fcs.slice(0,20).map(function(f){
+    var sc=(f.sc||[]).map(function(x,i){return '<li'+(f.done&&f.hit===i?' class="gain"':'')+'><b>'+esc(T.s)+' '+(i+1)+(x.p!=null&&x.p!==''?' · '+esc(x.p)+'%':'')+'</b> '+esc(x.t||'')+'</li>'}).join('');
+    return '<div class="note" style="margin-top:10px"><div style="display:flex;justify-content:space-between;gap:8px"><div><b>'+esc(f.pair)+'</b> · '+esc(f.date)+'<br><small>'+(f.done?esc(T.done)+' · '+(f.hit>=0?'✓ '+esc(T.s)+' '+(f.hit+1):f.hit===-2?esc(T.part):esc(T.nothing)):esc(T.pend))+'</small></div><button class="icon-btn" data-fcdel="'+esc(f.id)+'" aria-label="X">&times;</button></div>'+
+      (f.lv?'<small>'+esc(f.lv)+'</small>':'')+'<ul class="todo">'+sc+'</ul>'+(f.news?'<small>📰 '+esc(f.news)+'</small><br>':'')+
+      (f.done?'<hr style="border:0;border-top:1px solid var(--line);margin:8px 0"><small><b>'+esc(T.did)+'</b> : '+esc(f.did||'–')+'</small><br>'+(f.news2?'<small>📰 '+esc(f.news2)+'</small><br>':'')+(f.les?'<small><b>'+esc(T.les)+'</b> : '+esc(f.les)+'</small>':''):'')+
+      '<button class="btn" style="margin-top:8px" data-fcfill="'+esc(f.id)+'" type="button">'+esc(f.done?T.edit:T.fill)+'</button></div>'}).join('');
+  ov.innerHTML=h+'</div>';ov.hidden=false;
+}
+function fcNew(){
+  var T=fcT(),ov=$('#overlay'),pairs=$('#f-pair')?$('#f-pair').innerHTML:'<option>GOLD</option>',last=trades.length?trades[0].pair:'';
+  var scs=[0,1,2].map(function(i){return '<div class="field"><span>'+esc(T.sc)+' '+(i+1)+'</span><div style="display:flex;gap:8px"><textarea id="fc-s'+i+'" rows="2" maxlength="200" placeholder="'+esc(T.scp)+'" style="flex:1"></textarea><input type="text" inputmode="numeric" id="fc-p'+i+'" maxlength="3" placeholder="'+esc(T.pc)+'" style="width:64px"></div></div>'}).join('');
+  ov.innerHTML='<div class="sheet" data-notr role="dialog"><div class="hd"><h3>'+esc(T.btn)+'</h3><button class="icon-btn" data-close aria-label="X">&times;</button></div>'+
+   '<div class="row2"><label class="field"><span>'+esc(T.pair)+'</span><select id="fc-pair">'+pairs+'</select></label><label class="field"><span>'+esc(T.date)+'</span><input type="date" id="fc-date" value="'+fcNextOpen()+'"></label></div>'+
+   '<label class="field"><span>'+esc(T.lv)+'</span><textarea id="fc-lv" rows="2" maxlength="240" placeholder="'+esc(T.lvp)+'"></textarea></label>'+scs+
+   '<label class="field"><span>'+esc(T.news)+'</span><textarea id="fc-news" rows="2" maxlength="300" placeholder="'+esc(T.newsp)+'"></textarea></label>'+
+   '<label class="btn addbtn"><input type="file" id="fc-file" accept="image/*"><span id="fc-fl">'+esc(T.shot)+'</span></label>'+
+   '<button class="btn primary" id="fc-save" type="button">'+esc(T.save)+'</button></div>';
+  ov.hidden=false;fcShot=null;
+  if(last){var sp=$('#fc-pair');for(var i=0;i<sp.options.length;i++)if(sp.options[i].value===last){sp.value=last;break}}
+}
+async function fcSaveNew(){
+  var T=fcT(),btn=$('#fc-save'),sc=[];
+  for(var i=0;i<3;i++){var t=$('#fc-s'+i).value.trim(),p=$('#fc-p'+i).value.replace(/[^0-9]/g,'');if(t)sc.push({t:t.slice(0,200),p:p===''?'':Math.min(100,+p)})}
+  if(!sc.length){toast(T.sc+' ?');return}
+  var date=$('#fc-date').value;if(!date){toast(T.date+' ?');return}
+  var d={fc:true,done:false,hit:-1,pair:$('#fc-pair').value,date:date,time:'00:00',lv:$('#fc-lv').value.trim().slice(0,240),sc:sc,news:$('#fc-news').value.trim().slice(0,300),shots:[]};
+  d.ts=new Date(date+'T00:00').getTime();d.upd=Date.now();btn.disabled=true;
+  try{if(fcShot){try{d.shots.push(await inlineShot(fcShot))}catch(e){}}await db.collection('trades').add(d);schedSync();toast(T.saved);fcList()}catch(e){btn.disabled=false;toast('Erreur')}
+}
+function fcFill(id){
+  var f=fcs.filter(function(x){return x.id===id})[0];if(!f)return;
+  var T=fcT(),ov=$('#overlay');
+  var opts=(f.sc||[]).map(function(x,i){return '<label><input type="radio" name="fchit" value="'+i+'"'+(f.done&&f.hit===i?' checked':'')+'><span>'+esc(T.s)+' '+(i+1)+'</span></label>'}).join('')+'<label><input type="radio" name="fchit" value="-2"'+(f.done&&f.hit===-2?' checked':'')+'><span>'+esc(T.part)+'</span></label><label><input type="radio" name="fchit" value="-1"'+(f.done&&f.hit===-1?' checked':'')+'><span>'+esc(T.nothing)+'</span></label>';
+  ov.innerHTML='<div class="sheet" data-notr role="dialog"><div class="hd"><h3>'+esc(T.chk)+' · '+esc(f.pair)+' '+esc(f.date)+'</h3><button class="icon-btn" data-close aria-label="X">&times;</button></div>'+
+   '<ul class="todo">'+(f.sc||[]).map(function(x,i){return '<li><b>'+esc(T.s)+' '+(i+1)+(x.p!==''&&x.p!=null?' · '+esc(x.p)+'%':'')+'</b> '+esc(x.t)+'</li>'}).join('')+'</ul>'+
+   '<div class="field"><span>'+esc(T.which)+'</span><div class="tgs">'+opts+'</div></div>'+
+   '<label class="field"><span>'+esc(T.did)+'</span><textarea id="fc-did" rows="3" maxlength="400" placeholder="'+esc(T.didp)+'">'+esc(f.did||'')+'</textarea></label>'+
+   '<label class="field"><span>'+esc(T.news2)+'</span><textarea id="fc-news2" rows="2" maxlength="300">'+esc(f.news2||'')+'</textarea></label>'+
+   '<label class="field"><span>'+esc(T.les)+'</span><textarea id="fc-les" rows="3" maxlength="400" placeholder="'+esc(T.lesp)+'">'+esc(f.les||'')+'</textarea></label>'+
+   '<button class="btn primary" id="fc-save2" data-id="'+esc(id)+'" type="button">'+esc(T.save)+'</button></div>';
+  ov.hidden=false;
+}
+async function fcSaveFill(id){
+  var f=fcs.filter(function(x){return x.id===id})[0];if(!f)return;
+  var h=getRadio('fchit');if(h==null){toast(fcT().which);return}
+  var c=JSON.parse(JSON.stringify(f));delete c.id;
+  c.done=true;c.hit=+h;c.did=$('#fc-did').value.trim().slice(0,400);c.news2=$('#fc-news2').value.trim().slice(0,300);c.les=$('#fc-les').value.trim().slice(0,400);c.upd=Date.now();
+  try{await db.collection('trades').doc(id).set(c);schedSync();toast(fcT().saved);fcList()}catch(e){toast('Erreur')}
+}
+document.addEventListener('click',function(e){
+  var t=e.target&&e.target.closest?e.target.closest('[data-fc],#fc-save,#fc-save2,[data-fcfill],[data-fcdel]'):null;if(!t)return;
+  var a=t.getAttribute('data-fc');
+  if(a==='list'){fcList();return}
+  if(a==='new'){fcNew();return}
+  if(t.id==='fc-save'){fcSaveNew();return}
+  if(t.id==='fc-save2'){fcSaveFill(t.getAttribute('data-id'));return}
+  var fl=t.getAttribute('data-fcfill');if(fl){fcFill(fl);return}
+  var dl=t.getAttribute('data-fcdel');
+  if(dl&&confirm(fcT().del)){(async function(){try{await db.collection('trades').doc(dl).delete();addTomb(dl);schedSync();setTimeout(fcList,150)}catch(er){}})()}
+});
+document.addEventListener('change',function(e){var t=e.target;if(t&&t.id==='fc-file'&&t.files&&t.files[0]){fcShot=t.files[0];var l=$('#fc-fl');if(l)l.textContent='✓ '+fcShot.name.slice(0,24)}});
 
 /* ---------- v2.5: apparence (police, taille, couleurs, fond animé, nom de l'assistante) ---------- */
 var LKF={def:['Archivo',null,''],pop:['Poppins','Poppins:wght@400;600;700','sans-serif'],mon:['Montserrat','Montserrat:wght@400;600;700','sans-serif'],nun:['Nunito','Nunito:wght@400;600;700','sans-serif'],spa:['Space Grotesk','Space+Grotesk:wght@400;600;700','sans-serif'],pla:['Playfair Display','Playfair+Display:wght@400;600;700','serif'],lor:['Lora','Lora:wght@400;600;700','serif'],rob:['Roboto Mono','Roboto+Mono:wght@400;600;700','monospace']};
@@ -1915,6 +1993,7 @@ function renderHome(){
   h+='<div class="block today'+(MX&&nT>=MAXDAY?' full':'')+'"><div class="big">'+nT+(MX?'<small>/'+MAXDAY+'</small>':'')+'</div><div class="msg"><b>'+msg[0]+'</b>'+msg[1]+'</div></div>';
   h+='<button class="btn primary" data-tab="saisie" type="button">+ Nouveau trade</button>';
   h+='<button class="btn" data-mo="open" type="button" data-notr>'+esc(moT().btn)+'</button>';
+  h+='<button class="btn" data-fc="list" type="button" data-notr>'+esc(fcT().btn)+(fcs.filter(function(f){return !f.done}).length?' <span class="fcb">'+fcs.filter(function(f){return !f.done}).length+'</span>':'')+'</button>';
   if(!N){
     h+='<div class="block welcome"><h2>Bienvenue</h2><ol class="steps-list">'+
       '<li><span>Après chaque trade, ouvre <b>Saisie</b> et remplis la fiche.</span></li>'+
@@ -2201,6 +2280,7 @@ function coData(withNotes){
     rulesFollowed:coGroup(all,function(t){return t.rules==null?null:(t.rules?'yes':'no')}),
     emotionTags:coGroup((function(){var r=[];all.forEach(function(t){(t.tags||[]).forEach(function(g){r.push({tg:g,pnl:t.pnl,r:t.r})})});return r})(),function(x){return x.tg}),
     missedOpportunities:coMissed(),
+    openingForecasts:coFc(),
     lastTrades:all.slice(-120).map(function(t){var o={d:t.date,t:t.time,p:t.pair,s:t.side,pnl:t.pnl,r:t.r,steps:t.steps?t.steps.filter(Boolean).length:null,rules:t.rules,stress:t.stress};if(t.trend)o.trend=t.trend.with;if(t.tags&&t.tags.length)o.tags=t.tags;if(withNotes&&t.note)o.note=String(t.note).slice(0,200);return o})};
   var nm=S.cn||'Coach';
   return "[Le trader t'a donné un prénom : tu t'appelles "+nm+". Présente-toi sous ce nom, sans le commenter.]\n"+JSON.stringify(d);
@@ -2399,9 +2479,9 @@ async function syncNow(manual){
     if(!tok||!uid){setSY('auth');return}
     var own=lsGet('ff-owner');
     if(own&&own!==uid){
-      if(lsGet('ff-dirty')==='1'&&(trades.length||missed.length)){setSY('pause');return}
-      var allq=trades.concat(missed);for(var q=0;q<allq.length;q++)await db.collection('trades').doc(allq[q].id).delete();
-      trades=[];missed=[];lsSet('ff-del',null);lsSet('ff-supd',null);lsSet('ff-ssig',null);
+      if(lsGet('ff-dirty')==='1'&&(trades.length||missed.length||fcs.length)){setSY('pause');return}
+      var allq=trades.concat(missed,fcs);for(var q=0;q<allq.length;q++)await db.collection('trades').doc(allq[q].id).delete();
+      trades=[];missed=[];fcs=[];lsSet('ff-del',null);lsSet('ff-supd',null);lsSet('ff-ssig',null);
     }
     lsSet('ff-owner',uid);
     var rows=await rest('/rest/v1/ff_data?select=data&user_id=eq.'+encodeURIComponent(uid),{token:tok});
@@ -2761,7 +2841,7 @@ trAll();
   if(!db){$('#banner').textContent='Les enregistrements ne sont pas disponibles dans cette vue. Ouvre le journal dans Claude.';$('#banner').hidden=false;loaded=true;renderAll();return}
   db.collection('trades').onSnapshot(function(snap){
     var allD=snap.docs.map(function(d){var o=d.data();o.id=d.id;return o}).sort(function(a,b){return (b.ts||0)-(a.ts||0)});
-    trades=allD.filter(function(t){return !t.mo});missed=allD.filter(function(t){return t.mo});
+    trades=allD.filter(function(t){return !t.mo&&!t.fc});missed=allD.filter(function(t){return t.mo});fcs=allD.filter(function(t){return t.fc});
     var first=!loaded;loaded=true;renderAll();
     if(first&&USER)syncNow();else if(pendingSync&&USER){pendingSync=false;syncNow()}
   },function(){$('#banner').textContent='Lecture du journal impossible pour le moment. Recharge la page.';$('#banner').hidden=false;loaded=true;renderAll()});
