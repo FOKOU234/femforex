@@ -333,6 +333,24 @@ table.cmp td:first-child{color:var(--muted)}
 .ab-lg i{font-style:normal;font-weight:800;font-size:18px;color:var(--c)}
 .ab-lg img{position:absolute;inset:7px;width:28px;height:28px;object-fit:contain;border-radius:6px;background:#fff}
 .ab-links .ab-d{flex:1}
+
+/* ===== v4.4c : corrections pro ===== */
+.hero-t{background:none!important;-webkit-background-clip:initial!important;background-clip:initial!important;color:var(--ink)!important;font-size:27px}
+.hero-t em{font-style:normal;color:var(--accent)}
+.hero .tag-line{font-size:12.5px;text-transform:capitalize}
+/* dock : opaque, jamais de texte qui passe dessous */
+nav.tabs{background:color-mix(in srgb,var(--surface) 94%,#000 6%)!important;backdrop-filter:blur(26px) saturate(1.5)!important;-webkit-backdrop-filter:blur(26px) saturate(1.5)!important}
+nav.tabs .in{padding:0 2px}
+nav.tabs button.cxn,nav.tabs button.cxn[aria-selected=true]{margin:0 2px}
+body{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))!important}
+main,.view,[data-view]{scroll-margin-bottom:110px}
+/* cartes semaine : bloc parent plat, cartes nettes */
+.kpis{gap:10px}
+.kpi{padding:13px 14px 14px!important;border-radius:16px!important;box-shadow:inset 0 1px 0 color-mix(in srgb,#fff 8%,transparent)!important;background:linear-gradient(160deg,color-mix(in srgb,var(--k) 16%,var(--surface)) ,color-mix(in srgb,var(--k) 4%,var(--surface)))!important}
+.kpi::after{display:none!important}
+.kpi::before{content:"";display:block;width:22px;height:3px;border-radius:3px;background:var(--k);box-shadow:0 0 12px var(--k);margin-bottom:10px}
+.kpi span{color:var(--muted)!important;font-weight:600;font-size:12px}
+.kpi b{font-size:23px!important}
 </style><script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments)};</script><script defer src="/_vercel/insights/script.js"></script></head><body>
 <script>
 (function(){
@@ -2201,7 +2219,7 @@ function renderHome(){
     :(!MX||nT<MAXDAY)?[MX?'Il te reste '+rest+' trade'+(rest>1?'s':''):nT+' trade'+(nT>1?'s':'')+' aujourd\'hui','Seulement si toutes tes étapes sont là.']
     :['Limite atteinte','Plus d\'entrée aujourd\'hui. Revois tes captures.'];
   var d=fmtLong(today);
-  var HT=HEROT[S.lang]||HEROT.fr;h+='<div class="hero"><div class="tag-line">'+greet()+' · '+esc(d.charAt(0).toUpperCase()+d.slice(1))+'</div><h2 class="hero-t" data-notr>'+esc(HT[0])+'</h2><p class="hero-s" data-notr>'+esc(HT[1])+'</p></div>';
+  var HT=HEROT[S.lang]||HEROT.fr;h+='<div class="hero"><div class="tag-line">'+greet()+' · '+esc(d.charAt(0).toUpperCase()+d.slice(1))+'</div><h2 class="hero-t" data-notr>'+esc(HT[0]).replace(/(\S+)$/,'<em>$1</em>')+'</h2><p class="hero-s" data-notr>'+esc(HT[1])+'</p></div>';
   h+='<div class="block today'+(MX&&nT>=MAXDAY?' full':'')+'"><div class="big">'+nT+(MX?'<small>/'+MAXDAY+'</small>':'')+'</div><div class="msg"><b>'+msg[0]+'</b>'+msg[1]+'</div></div>';
   h+='<button class="btn primary" data-tab="saisie" type="button">+ Nouveau trade</button>';
   h+='<div class="qa"><button class="qt qt-mo" data-mo="open" type="button" data-notr><span class="qi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h10M7 20.5h10M8 3.5c0 4 3 5 4 8.5-1 3.5-4 4.5-4 8.5M16 3.5c0 4-3 5-4 8.5 1 3.5 4 4.5 4 8.5"/></svg></span><b>'+esc(moT().btn)+'</b></button>';
